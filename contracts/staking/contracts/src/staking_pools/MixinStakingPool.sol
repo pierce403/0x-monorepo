@@ -125,34 +125,57 @@ contract MixinStakingPool is
         return poolId;
     }
 
-    /// @dev Adds a maker to a staking pool. Note that this is only callable by the pool operator.
-    /// @param poolId Unique id of pool.
-    /// @param makerAddress Address of maker.
-    /// @param makerSignature Signature proving that maker has agreed to join the pool.
-    function addMakerToStakingPool(
-        bytes32 poolId,
-        address makerAddress,
-        bytes calldata makerSignature
+    function joinStakingPool(
+        bytes32 poolId
     )
         external
-        onlyStakingPoolOperator(poolId)
     {
-        // sanity check - did maker agree to join this pool?
-        if (!isValidMakerSignature(poolId, makerAddress, makerSignature)) {
-            LibRichErrors.rrevert(LibStakingRichErrors.InvalidMakerSignatureError(
-                poolId,
-                makerAddress,
-                makerSignature
-            ));
-        }
+        address makerAddress = msg.sender;
         if (isMakerAssignedToStakingPool(makerAddress)) {
             LibRichErrors.rrevert(LibStakingRichErrors.MakerAddressAlreadyRegisteredError(
                 makerAddress
             ));
         }
 
+        // TODO{mzhu25}: check size of pool
+
+        pendingPoolJoinedByMakerAddress[makerAddress] = poolId;
+
+        // TODO{mzhu25}: emit event
+    }
+
+    /// @dev Adds a maker to a staking pool. Note that this is only callable by the pool operator.
+    /// Note also that the maker must have previously called joinStakingPool.
+    /// @param poolId Unique id of pool.
+    /// @param makerAddress Address of maker.
+    function addMakerToStakingPool(
+        bytes32 poolId,
+        address makerAddress
+    )
+        external
+        onlyStakingPoolOperator(poolId)
+    {
+        if (isMakerAssignedToStakingPool(makerAddress)) {
+            LibRichErrors.rrevert(LibStakingRichErrors.MakerAddressAlreadyRegisteredError(
+                makerAddress
+            ));
+        }
+
+        // sanity check - is maker trying to join this pool?
+        bytes32 pendingJoinPoolId = getPendingPoolJoinedByMaker(makerAddress);
+        if (pendingJoinPoolId != poolId) {
+            LibRichErrors.rrevert(LibStakingRichErrors.MakerNotPendingJoinError(
+                makerAddress,
+                pendingJoinPoolId,
+                poolId
+            ));
+        }
+
+        // TODO{mzhu25}: check size of pool
+
         poolIdByMakerAddress[makerAddress] = poolId;
         makerAddressesByPoolId[poolId].push(makerAddress);
+        pendingPoolJoinedByMakerAddress[makerAddress] = NIL_MAKER_ID;
 
         // notify
         emit MakerAddedToStakingPool(
@@ -161,7 +184,7 @@ contract MixinStakingPool is
         );
     }
 
-    /// @dev Adds a maker to a staking pool. Note that this is only callable by the pool operator or maker.
+    /// @dev Removes a maker from a staking pool. Note that this is only callable by the pool operator or maker.
     /// Note also that the maker does not have to *agree* to leave the pool; this action is
     /// at the sole discretion of the pool operator.
     /// @param poolId Unique id of pool.
@@ -214,44 +237,6 @@ contract MixinStakingPool is
         );
     }
 
-    /// @dev Returns true iff the input signature is valid; meaning that the maker agrees to
-    /// be added to the pool.
-    /// @param poolId Unique id of pool the maker wishes to join.
-    /// @param makerAddress Address of maker.
-    /// @param makerSignature Signature of the maker.
-    /// @return isValid True iff the maker agrees to be added to the pool.
-    function isValidMakerSignature(bytes32 poolId, address makerAddress, bytes memory makerSignature)
-        public
-        view
-        returns (bool isValid)
-    {
-        bytes32 approvalHash = getStakingPoolApprovalMessageHash(poolId, makerAddress);
-        isValid = LibSignatureValidator._isValidSignature(approvalHash, makerAddress, makerSignature);
-        return isValid;
-    }
-
-    /// @dev Returns the approval message hash - this is what a maker must sign in order to
-    /// be added to a pool.
-    /// @param poolId Unique id of pool the maker wishes to join.
-    /// @param makerAddress Address of maker.
-    /// @return approvalHash Hash of message the maker must sign.
-    function getStakingPoolApprovalMessageHash(bytes32 poolId, address makerAddress)
-        public
-        view
-        returns (bytes32 approvalHash)
-    {
-        IStructs.StakingPoolApproval memory approval = IStructs.StakingPoolApproval({
-            poolId: poolId,
-            makerAddress: makerAddress
-        });
-
-        // hash approval message and check signer address
-        address verifierAddress = address(this);
-        approvalHash = LibEIP712Hash._hashStakingPoolApprovalMessage(approval, CHAIN_ID, verifierAddress);
-
-        return approvalHash;
-    }
-
     /// @dev Returns the pool id of an input maker.
     function getStakingPoolIdOfMaker(address makerAddress)
         public
@@ -259,6 +244,15 @@ contract MixinStakingPool is
         returns (bytes32)
     {
         return poolIdByMakerAddress[makerAddress];
+    }
+
+    /// @dev Returns the pool id that the input maker is pending to join.
+    function getPendingPoolJoinedByMaker(address makerAddress)
+        public
+        view
+        returns (bytes32)
+    {
+        return pendingPoolJoinedByMakerAddress[makerAddress];
     }
 
     /// @dev Returns true iff the maker is assigned to a staking pool.

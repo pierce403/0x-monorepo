@@ -74,6 +74,9 @@ contract MixinStorage is
     // mapping from Pool Id to Addresses
     mapping (bytes32 => address[]) internal makerAddressesByPoolId;
 
+    // mapping from Maker Address to Pool Id
+    mapping (address => bytes32) internal pendingPoolJoinedByMakerAddress;
+
     // current epoch
     uint256 internal currentEpoch = INITIAL_EPOCH;
 

@@ -21,24 +21,6 @@ pragma solidity ^0.5.9;
 
 interface IStructs {
 
-    /// @dev Allowed signature types.
-    enum SignatureType {
-        Illegal,            // 0x00, default value
-        Invalid,            // 0x01
-        EIP712,             // 0x02
-        EthSign,            // 0x03
-        Wallet,             // 0x04
-        NSignatureTypes     // 0x05, number of signature types. Always leave at end.
-    }
-
-    /// @dev Required fields for a maker to approve a staking pool.
-    /// @param poolId Unique Id of staking pool.
-    /// @param makerAddress Address of maker who has approved the pool.
-    struct StakingPoolApproval {
-        bytes32 poolId;
-        address makerAddress;
-    }
-
     /// @dev State for Staking Pools (see MixinStakingPool).
     /// @param operatorAddress Address of pool operator.
     /// @param operatorShare Portion of pool rewards owned by operator.

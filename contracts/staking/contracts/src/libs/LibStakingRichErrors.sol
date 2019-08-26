@@ -38,30 +38,6 @@ library LibStakingRichErrors {
     bytes4 internal constant EXCHANGE_ADDRESS_NOT_REGISTERED_ERROR_SELECTOR =
         0x7dc025b0;
 
-    // bytes4(keccak256("SignatureLengthGreaterThan0RequiredError()"))
-    bytes internal constant SIGNATURE_LENGTH_GREATER_THAN_0_REQUIRED_ERROR =
-        hex"2dcb01d9";
-
-    // bytes4(keccak256("SignatureUnsupportedError(bytes)"))
-    bytes4 internal constant SIGNATURE_UNSUPPORTED_ERROR_SELECTOR =
-        0xffca2a70;
-
-    // bytes4(keccak256("SignatureIllegalError(bytes)"))
-    bytes4 internal constant SIGNATURE_ILLEGAL_ERROR_SELECTOR =
-        0x4a95093c;
-
-    // bytes4(keccak256("SignatureLength0RequiredError(bytes)"))
-    bytes4 internal constant SIGNATURE_LENGTH_0_REQUIRED_ERROR_SELECTOR =
-        0xcbcd59a2;
-
-    // bytes4(keccak256("SignatureLength65RequiredError(bytes)"))
-    bytes4 internal constant SIGNATURE_LENGTH_65_REQUIRED_ERROR_SELECTOR =
-        0x091d7ab9;
-
-    // bytes4(keccak256("WalletError(address,bytes)"))
-    bytes4 internal constant WALLET_ERROR_SELECTOR =
-        0x0cfc935d;
-
     // bytes4(keccak256("InsufficientBalanceError(uint256,uint256)"))
     bytes4 internal constant INSUFFICIENT_BALANCE_ERROR_SELECTOR =
         0x84c8b7c9;
@@ -74,10 +50,6 @@ library LibStakingRichErrors {
     bytes4 internal constant ONLY_CALLABLE_BY_POOL_OPERATOR_OR_MAKER_ERROR_SELECTOR =
         0x7d9e1c10;
 
-    // bytes4(keccak256("InvalidMakerSignatureError(bytes32,address,bytes)"))
-    bytes4 internal constant INVALID_MAKER_SIGNATURE_ERROR_SELECTOR =
-        0x726b89c8;
-
     // bytes4(keccak256("MakerAddressAlreadyRegisteredError(address)"))
     bytes4 internal constant MAKER_ADDRESS_ALREADY_REGISTERED_ERROR_SELECTOR =
         0x5a3971da;
@@ -85,6 +57,10 @@ library LibStakingRichErrors {
     // bytes4(keccak256("MakerAddressNotRegisteredError(address,bytes32,bytes32)"))
     bytes4 internal constant MAKER_ADDRESS_NOT_REGISTERED_ERROR_SELECTOR =
         0x12ab07e8;
+
+    // bytes4(keccak256("MakerNotPendingJoinError(address,bytes32,bytes32)"))
+    bytes4 internal constant MAKER_NOT_PENDING_JOIN_ERROR_SELECTOR =
+        0x11684a2c;
 
     // bytes4(keccak256("WithdrawAmountExceedsMemberBalanceError(uint256,uint256)"))
     bytes4 internal constant WITHDRAW_AMOUNT_EXCEEDS_MEMBER_BALANCE_ERROR_SELECTOR =
@@ -173,81 +149,6 @@ library LibStakingRichErrors {
         );
     }
 
-    function SignatureLengthGreaterThan0RequiredError()
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return SIGNATURE_LENGTH_GREATER_THAN_0_REQUIRED_ERROR;
-    }
-
-    function SignatureUnsupportedError(
-        bytes memory signature
-    )
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeWithSelector(
-            SIGNATURE_UNSUPPORTED_ERROR_SELECTOR,
-            signature
-        );
-    }
-
-    function SignatureIllegalError(
-        bytes memory signature
-    )
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeWithSelector(
-            SIGNATURE_ILLEGAL_ERROR_SELECTOR,
-            signature
-        );
-    }
-
-    function SignatureLength0RequiredError(
-        bytes memory signature
-    )
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeWithSelector(
-            SIGNATURE_LENGTH_0_REQUIRED_ERROR_SELECTOR,
-            signature
-        );
-    }
-
-    function SignatureLength65RequiredError(
-        bytes memory signature
-    )
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeWithSelector(
-            SIGNATURE_LENGTH_65_REQUIRED_ERROR_SELECTOR,
-            signature
-        );
-    }
-
-    function WalletError(
-        address walletAddress,
-        bytes memory errorData
-    )
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeWithSelector(
-            WALLET_ERROR_SELECTOR,
-            walletAddress,
-            errorData
-        );
-    }
-
     function InsufficientBalanceError(
         uint256 amount,
         uint256 balance
@@ -295,23 +196,6 @@ library LibStakingRichErrors {
         );
     }
 
-    function InvalidMakerSignatureError(
-        bytes32 poolId,
-        address makerAddress,
-        bytes memory makerSignature
-    )
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeWithSelector(
-            INVALID_MAKER_SIGNATURE_ERROR_SELECTOR,
-            poolId,
-            makerAddress,
-            makerSignature
-        );
-    }
-
     function MakerAddressAlreadyRegisteredError(
         address makerAddress
     )
@@ -338,6 +222,23 @@ library LibStakingRichErrors {
             MAKER_ADDRESS_NOT_REGISTERED_ERROR_SELECTOR,
             makerAddress,
             makerPoolId,
+            poolId
+        );
+    }
+
+    function MakerNotPendingJoinError(
+        address makerAddress,
+        bytes32 pendingJoinPoolId,
+        bytes32 poolId
+    )
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodeWithSelector(
+            MAKER_NOT_PENDING_JOIN_ERROR_SELECTOR,
+            makerAddress,
+            pendingJoinPoolId,
             poolId
         );
     }

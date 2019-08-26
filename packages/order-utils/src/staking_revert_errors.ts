@@ -36,42 +36,6 @@ export class ExchangeAddressNotRegisteredError extends RevertError {
     }
 }
 
-export class SignatureLengthGreaterThan0RequiredError extends RevertError {
-    constructor() {
-        super('SignatureLengthGreaterThan0RequiredError', 'SignatureLengthGreaterThan0RequiredError()', {});
-    }
-}
-
-export class SignatureUnsupportedError extends RevertError {
-    constructor(signature?: string) {
-        super('SignatureUnsupportedError', 'SignatureUnsupportedError(bytes signature)', { signature });
-    }
-}
-
-export class SignatureIllegalError extends RevertError {
-    constructor(signature?: string) {
-        super('SignatureIllegalError', 'SignatureIllegalError(bytes signature)', { signature });
-    }
-}
-
-export class SignatureLength0RequiredError extends RevertError {
-    constructor(signature?: string) {
-        super('SignatureLength0RequiredError', 'SignatureLength0RequiredError(bytes signature)', { signature });
-    }
-}
-
-export class SignatureLength65RequiredError extends RevertError {
-    constructor(signature?: string) {
-        super('SignatureLength65RequiredError', 'SignatureLength65RequiredError(bytes signature)', { signature });
-    }
-}
-
-export class WalletError extends RevertError {
-    constructor(walletAddress?: string, errorData?: string) {
-        super('WalletError', 'WalletError(address walletAddress, bytes errorData)', { walletAddress, errorData });
-    }
-}
-
 export class InsufficientBalanceError extends RevertError {
     constructor(amount?: BigNumber | number | string, balance?: BigNumber | number | string) {
         super('InsufficientBalanceError', 'InsufficientBalanceError(uint256 amount, uint256 balance)', {
@@ -101,16 +65,6 @@ export class OnlyCallableByPoolOperatorOrMakerError extends RevertError {
     }
 }
 
-export class InvalidMakerSignatureError extends RevertError {
-    constructor(poolId?: string, makerAddress?: string, makerSignature?: string) {
-        super(
-            'InvalidMakerSignatureError',
-            'InvalidMakerSignatureError(bytes32 poolId, address makerAddress, bytes makerSignature)',
-            { poolId, makerAddress, makerSignature },
-        );
-    }
-}
-
 export class MakerAddressAlreadyRegisteredError extends RevertError {
     constructor(makerAddress?: string) {
         super('MakerAddressAlreadyRegisteredError', 'MakerAddressAlreadyRegisteredError(address makerAddress)', {
@@ -125,6 +79,16 @@ export class MakerAddressNotRegisteredError extends RevertError {
             'MakerAddressNotRegisteredError',
             'MakerAddressNotRegisteredError(address makerAddress, bytes32 makerPoolId, bytes32 poolId)',
             { makerAddress, makerPoolId, poolId },
+        );
+    }
+}
+
+export class MakerNotPendingJoinError extends RevertError {
+    constructor(makerAddress?: string, pendingJoinPoolId?: string, poolId?: string) {
+        super(
+            'MakerNotPendingJoinError',
+            'MakerNotPendingJoinError(address makerAddress, bytes32 pendingJoinPoolId, bytes32 poolId)',
+            { makerAddress, pendingJoinPoolId, poolId },
         );
     }
 }
@@ -200,18 +164,12 @@ const types = [
     OnlyCallableByExchangeError,
     ExchangeAddressAlreadyRegisteredError,
     ExchangeAddressNotRegisteredError,
-    SignatureLengthGreaterThan0RequiredError,
-    SignatureUnsupportedError,
-    SignatureIllegalError,
-    SignatureLength0RequiredError,
-    SignatureLength65RequiredError,
-    WalletError,
     InsufficientBalanceError,
     OnlyCallableByPoolOperatorError,
     OnlyCallableByPoolOperatorOrMakerError,
-    InvalidMakerSignatureError,
     MakerAddressAlreadyRegisteredError,
     MakerAddressNotRegisteredError,
+    MakerNotPendingJoinError,
     WithdrawAmountExceedsMemberBalanceError,
     BlockTimestampTooLowError,
     OnlyCallableByStakingContractError,

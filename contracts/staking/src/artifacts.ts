@@ -13,7 +13,6 @@ import * as IStructs from '../generated-artifacts/IStructs.json';
 import * as IVaultCore from '../generated-artifacts/IVaultCore.json';
 import * as IWallet from '../generated-artifacts/IWallet.json';
 import * as IZrxVault from '../generated-artifacts/IZrxVault.json';
-import * as LibEIP712Hash from '../generated-artifacts/LibEIP712Hash.json';
 import * as LibFeeMath from '../generated-artifacts/LibFeeMath.json';
 import * as LibFeeMathTest from '../generated-artifacts/LibFeeMathTest.json';
 import * as LibRewardMath from '../generated-artifacts/LibRewardMath.json';
@@ -56,7 +55,6 @@ export const artifacts = {
     IVaultCore: IVaultCore as ContractArtifact,
     IWallet: IWallet as ContractArtifact,
     IZrxVault: IZrxVault as ContractArtifact,
-    LibEIP712Hash: LibEIP712Hash as ContractArtifact,
     LibFeeMath: LibFeeMath as ContractArtifact,
     LibRewardMath: LibRewardMath as ContractArtifact,
     LibSafeDowncast: LibSafeDowncast as ContractArtifact,

@@ -29,16 +29,10 @@ export class PoolOperatorActor extends BaseActor {
     public async addMakerToStakingPoolAsync(
         poolId: string,
         makerAddress: string,
-        makerSignature: string,
         revertError?: RevertError,
     ): Promise<void> {
         // add maker
-        const txReceiptPromise = this._stakingWrapper.addMakerToStakingPoolAsync(
-            poolId,
-            makerAddress,
-            makerSignature,
-            this._owner,
-        );
+        const txReceiptPromise = this._stakingWrapper.addMakerToStakingPoolAsync(poolId, makerAddress, this._owner);
         if (revertError !== undefined) {
             await expect(txReceiptPromise).to.revertWith(revertError);
             return;
@@ -47,6 +41,9 @@ export class PoolOperatorActor extends BaseActor {
         // check the pool id of the maker
         const poolIdOfMaker = await this._stakingWrapper.getStakingPoolIdOfMakerAsync(makerAddress);
         expect(poolIdOfMaker, 'pool id of maker').to.be.equal(poolId);
+        // check that the pending pool of the maker is nil
+        const pendingPoolJoinedByMaker = await this._stakingWrapper.getStakingPoolIdOfMakerAsync(makerAddress);
+        expect(pendingPoolJoinedByMaker, 'pending pool joined by maker').to.be.equal(stakingConstants.NIL_POOL_ID);
         // check the list of makers for the pool
         const makerAddressesForPool = await this._stakingWrapper.getMakersForStakingPoolAsync(poolId);
         expect(makerAddressesForPool, 'maker addresses for pool').to.include(makerAddress);
