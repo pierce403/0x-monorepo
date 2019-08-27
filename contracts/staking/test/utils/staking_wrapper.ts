@@ -363,7 +363,9 @@ export class StakingWrapper {
         return txReceipt;
     }
     public async getPendingPoolJoinedByMakerAsync(makerAddress: string): Promise<string> {
-        const calldata = this.getStakingContract().getPendingPoolJoinedByMaker.getABIEncodedTransactionData(makerAddress);
+        const calldata = this.getStakingContract().getPendingPoolJoinedByMaker.getABIEncodedTransactionData(
+            makerAddress,
+        );
         const poolId = await this._callAsync(calldata);
         return poolId;
     }
