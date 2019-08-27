@@ -62,6 +62,10 @@ library LibStakingRichErrors {
     bytes4 internal constant MAKER_NOT_PENDING_JOIN_ERROR_SELECTOR =
         0x11684a2c;
 
+    // bytes4(keccak256("StakingPoolIsFullError(bytes32)"))
+    bytes4 internal constant STAKING_POOL_IS_FULL_ERROR_SELECTOR =
+        0x0940bcba;
+
     // bytes4(keccak256("WithdrawAmountExceedsMemberBalanceError(uint256,uint256)"))
     bytes4 internal constant WITHDRAW_AMOUNT_EXCEEDS_MEMBER_BALANCE_ERROR_SELECTOR =
         0xfc9c065f;
@@ -239,6 +243,19 @@ library LibStakingRichErrors {
             MAKER_NOT_PENDING_JOIN_ERROR_SELECTOR,
             makerAddress,
             pendingJoinPoolId,
+            poolId
+        );
+    }
+
+    function StakingPoolIsFullError(
+        bytes32 poolId
+    )
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodeWithSelector(
+            STAKING_POOL_IS_FULL_ERROR_SELECTOR,
             poolId
         );
     }

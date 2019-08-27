@@ -93,6 +93,12 @@ export class MakerNotPendingJoinError extends RevertError {
     }
 }
 
+export class StakingPoolIsFullError extends RevertError {
+    constructor(poolId?: string) {
+        super('StakingPoolIsFullError', 'StakingPoolIsFullError(bytes32 poolId)', { poolId });
+    }
+}
+
 export class WithdrawAmountExceedsMemberBalanceError extends RevertError {
     constructor(withdrawAmount?: BigNumber | number | string, balance?: BigNumber | number | string) {
         super(
@@ -170,6 +176,7 @@ const types = [
     MakerAddressAlreadyRegisteredError,
     MakerAddressNotRegisteredError,
     MakerNotPendingJoinError,
+    StakingPoolIsFullError,
     WithdrawAmountExceedsMemberBalanceError,
     BlockTimestampTooLowError,
     OnlyCallableByStakingContractError,

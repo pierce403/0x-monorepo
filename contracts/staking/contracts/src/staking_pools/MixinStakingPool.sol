@@ -130,6 +130,7 @@ contract MixinStakingPool is
     )
         external
     {
+        // Is the maker already in a pool?
         address makerAddress = msg.sender;
         if (isMakerAssignedToStakingPool(makerAddress)) {
             LibRichErrors.rrevert(LibStakingRichErrors.MakerAddressAlreadyRegisteredError(
@@ -137,11 +138,13 @@ contract MixinStakingPool is
             ));
         }
 
-        // TODO{mzhu25}: check size of pool
-
         pendingPoolJoinedByMakerAddress[makerAddress] = poolId;
 
-        // TODO{mzhu25}: emit event
+        // notify
+        emit PendingStakingPoolJoin(
+            poolId,
+            makerAddress
+        );
     }
 
     /// @dev Adds a maker to a staking pool. Note that this is only callable by the pool operator.
@@ -155,13 +158,14 @@ contract MixinStakingPool is
         external
         onlyStakingPoolOperator(poolId)
     {
+        // Is the maker already in a pool?
         if (isMakerAssignedToStakingPool(makerAddress)) {
             LibRichErrors.rrevert(LibStakingRichErrors.MakerAddressAlreadyRegisteredError(
                 makerAddress
             ));
         }
 
-        // sanity check - is maker trying to join this pool?
+        // Is the maker trying to join this pool?
         bytes32 pendingJoinPoolId = getPendingPoolJoinedByMaker(makerAddress);
         if (pendingJoinPoolId != poolId) {
             LibRichErrors.rrevert(LibStakingRichErrors.MakerNotPendingJoinError(
@@ -171,7 +175,10 @@ contract MixinStakingPool is
             ));
         }
 
-        // TODO{mzhu25}: check size of pool
+        // Is the pool already full?
+        if (getSizeOfStakingPool(poolId) == MAX_POOL_SIZE) {
+            LibRichErrors.rrevert(LibStakingRichErrors.StakingPoolIsFullError(poolId));
+        }
 
         poolIdByMakerAddress[makerAddress] = poolId;
         makerAddressesByPoolId[poolId].push(makerAddress);
@@ -275,6 +282,17 @@ contract MixinStakingPool is
         returns (address[] memory _makerAddressesByPoolId)
     {
         return makerAddressesByPoolId[poolId];
+    }
+
+    /// @dev Returns the current number of makers in a given pool.
+    /// @param poolId Unique id of pool.
+    /// @return Size of pool.
+    function getSizeOfStakingPool(bytes32 poolId)
+        public
+        view
+        returns (uint256)
+    {
+        return makerAddressesByPoolId[poolId].length;
     }
 
     /// @dev Returns the unique id that will be assigned to the next pool that is created.

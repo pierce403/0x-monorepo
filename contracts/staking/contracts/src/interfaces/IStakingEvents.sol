@@ -77,6 +77,14 @@ interface IStakingEvents {
         uint8 operatorShare
     );
 
+    /// @dev Emitted by MixinStakingPool when a new maker requests to join a pool.
+    /// @param poolId Unique id of pool.
+    /// @param makerAddress Adress of maker joining the pool.
+    event PendingStakingPoolJoin(
+        bytes32 poolId,
+        address makerAddress
+    );
+
     /// @dev Emitted by MixinStakingPool when a new maker is added to a pool.
     /// @param poolId Unique id of pool.
     /// @param makerAddress Adress of maker added to pool.

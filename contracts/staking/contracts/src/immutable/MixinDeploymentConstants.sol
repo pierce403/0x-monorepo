@@ -32,4 +32,6 @@ contract MixinDeploymentConstants {
     uint256 constant internal REWARD_PAYOUT_DELEGATED_STAKE_PERCENT_VALUE = 90;
 
     uint256 constant internal CHAIN_ID = 1;
+
+    uint256 constant internal MAX_POOL_SIZE = 10;
 }

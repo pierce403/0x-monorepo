@@ -42,7 +42,7 @@ export class PoolOperatorActor extends BaseActor {
         const poolIdOfMaker = await this._stakingWrapper.getStakingPoolIdOfMakerAsync(makerAddress);
         expect(poolIdOfMaker, 'pool id of maker').to.be.equal(poolId);
         // check that the pending pool of the maker is nil
-        const pendingPoolJoinedByMaker = await this._stakingWrapper.getStakingPoolIdOfMakerAsync(makerAddress);
+        const pendingPoolJoinedByMaker = await this._stakingWrapper.getPendingPoolJoinedByMakerAsync(makerAddress);
         expect(pendingPoolJoinedByMaker, 'pending pool joined by maker').to.be.equal(stakingConstants.NIL_POOL_ID);
         // check the list of makers for the pool
         const makerAddressesForPool = await this._stakingWrapper.getMakersForStakingPoolAsync(poolId);
