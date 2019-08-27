@@ -3,15 +3,10 @@ import { RevertError } from '@0x/utils';
 import * as _ from 'lodash';
 
 import { constants as stakingConstants } from '../utils/constants';
-import { StakingWrapper } from '../utils/staking_wrapper';
 
 import { BaseActor } from './base_actor';
 
 export class PoolOperatorActor extends BaseActor {
-    constructor(owner: string, stakingWrapper: StakingWrapper) {
-        super(owner, stakingWrapper);
-    }
-
     public async createStakingPoolAsync(operatorShare: number, revertError?: RevertError): Promise<string> {
         // query next pool id
         const nextPoolId = await this._stakingWrapper.getNextStakingPoolIdAsync();
