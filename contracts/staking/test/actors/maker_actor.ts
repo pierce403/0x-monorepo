@@ -26,11 +26,15 @@ export class MakerActor extends BaseActor {
         expect(pendingPoolJoinedByMaker, 'pending pool joined by maker').to.be.equal(poolId);
     }
 
-    public async removeMakerFromStakingPoolAsync(poolId: string, revertError?: RevertError): Promise<void> {
-        // remove self
+    public async removeMakerFromStakingPoolAsync(
+        poolId: string,
+        makerAddress: string,
+        revertError?: RevertError,
+    ): Promise<void> {
+        // remove maker (should fail if makerAddress !== this._owner)
         const txReceiptPromise = this._stakingWrapper.removeMakerFromStakingPoolAsync(
             poolId,
-            this._owner,
+            makerAddress,
             this._owner,
         );
 
