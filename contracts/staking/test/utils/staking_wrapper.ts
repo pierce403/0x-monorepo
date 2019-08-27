@@ -16,8 +16,6 @@ import {
     ZrxVaultContract,
 } from '../../src';
 
-import { constants } from './constants';
-
 export class StakingWrapper {
     private readonly _web3Wrapper: Web3Wrapper;
     private readonly _provider: Provider;
@@ -25,7 +23,6 @@ export class StakingWrapper {
     private readonly _ownerAddress: string;
     private readonly _erc20ProxyContract: ERC20ProxyContract;
     private readonly _zrxTokenContract: DummyERC20TokenContract;
-    private readonly _accounts: string[];
     private _stakingContractIfExists?: StakingContract;
     private _stakingProxyContractIfExists?: StakingProxyContract;
     private _zrxVaultContractIfExists?: ZrxVaultContract;
@@ -64,7 +61,6 @@ export class StakingWrapper {
         ownerAddres: string,
         erc20ProxyContract: ERC20ProxyContract,
         zrxTokenContract: DummyERC20TokenContract,
-        accounts: string[],
     ) {
         this._web3Wrapper = new Web3Wrapper(provider);
         this._provider = provider;
@@ -73,7 +69,6 @@ export class StakingWrapper {
         this._ownerAddress = ownerAddres;
         this._erc20ProxyContract = erc20ProxyContract;
         this._zrxTokenContract = zrxTokenContract;
-        this._accounts = accounts;
     }
     public getStakingContract(): StakingContract {
         this._validateDeployedOrThrow();
