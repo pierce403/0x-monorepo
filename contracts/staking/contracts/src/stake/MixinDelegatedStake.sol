@@ -113,7 +113,7 @@ contract MixinDelegatedStake is
         uint256 _delegatedStakeByPoolId = delegatedStakeByPoolId[poolId];
 
         // join staking pool
-        _joinStakingPool(
+        _stakeWithPool(
             poolId,
             owner,
             amount,
@@ -147,7 +147,7 @@ contract MixinDelegatedStake is
         uint256 _delegatedStakeByPoolId = delegatedStakeByPoolId[poolId];
 
         // leave the staking pool
-        _leaveStakingPool(
+        _unstakeFromPool(
             poolId,
             owner,
             amount,

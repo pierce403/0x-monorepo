@@ -230,7 +230,7 @@ contract MixinStakingPoolRewards is
     /// @param amountOfStakeToDelegate The stake to be delegated by `member` upon joining.
     /// @param totalStakeDelegatedToPool The amount of stake currently delegated to the pool.
     ///                                  This does not include `amountOfStakeToDelegate`.
-    function _joinStakingPool(
+    function _stakeWithPool(
         bytes32 poolId,
         address payable member,
         uint256 amountOfStakeToDelegate,
@@ -265,7 +265,7 @@ contract MixinStakingPoolRewards is
     ///                                          This includes `amountOfStakeToUndelegate`.
     /// @param totalStakeDelegatedToPool The total amount of stake currently delegated to the pool, across all members.
     ///                                  This includes `amountOfStakeToUndelegate`.
-    function _leaveStakingPool(
+    function _unstakeFromPool(
         bytes32 poolId,
         address payable member,
         uint256 amountOfStakeToUndelegate,
