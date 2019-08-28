@@ -295,9 +295,9 @@ blockchainTests('Staking Pool Management', env => {
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
 
             // add makers to pool
-            await Promise.all(makers.map(maker => maker.joinStakingPoolAsync(poolId)));
+            await Promise.all(makers.map(async maker => maker.joinStakingPoolAsync(poolId)));
             await Promise.all(
-                _.initial(makerAddresses).map(makerAddress =>
+                _.initial(makerAddresses).map(async makerAddress =>
                     poolOperator.addMakerToStakingPoolAsync(poolId, makerAddress),
                 ),
             );
