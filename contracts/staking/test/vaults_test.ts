@@ -41,7 +41,7 @@ blockchainTests('Staking Vaults', env => {
             // 1 setup test parameters
             const poolOperator = users[0];
             const operatorShare = 39;
-            const poolId = await stakingWrapper.createStakingPoolAsync(poolOperator, operatorShare);
+            const poolId = await stakingWrapper.createStakingPoolAsync(poolOperator, operatorShare, true);
             const stakingContractAddress = stakingWrapper.getStakingContract().address;
             const notStakingContractAddress = poolOperator;
             // create pool in vault

@@ -98,8 +98,9 @@ contract MixinStakingPool is
     /// @dev Create a new staking pool. The sender will be the operator of this pool.
     /// Note that an operator must be payable.
     /// @param operatorShare The percentage of any rewards owned by the operator.
+    /// @param addOperatorAsMaker Adds operator to the created pool as a maker for convenience iff true.
     /// @return poolId The unique pool id generated for this pool.
-    function createStakingPool(uint8 operatorShare)
+    function createStakingPool(uint8 operatorShare, bool addOperatorAsMaker)
         external
         returns (bytes32 poolId)
     {
@@ -122,6 +123,25 @@ contract MixinStakingPool is
 
         // notify
         emit StakingPoolCreated(poolId, operatorAddress, operatorShare);
+
+        if (addOperatorAsMaker) {
+            // Is the maker already in a pool?
+            if (isMakerAssignedToStakingPool(operatorAddress)) {
+                LibRichErrors.rrevert(LibStakingRichErrors.MakerAddressAlreadyRegisteredError(
+                    operatorAddress
+                ));
+            }
+
+            poolIdByMakerAddress[operatorAddress] = poolId;
+            makerAddressesByPoolId[poolId].push(operatorAddress);
+
+            // notify
+            emit MakerAddedToStakingPool(
+                poolId,
+                operatorAddress
+            );
+        }
+
         return poolId;
     }
 

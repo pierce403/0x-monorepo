@@ -74,7 +74,7 @@ blockchainTests('Staking & Delegating', env => {
             const amountToWithdraw = StakingWrapper.toBaseUnitAmount(1.5);
             const poolOperator = stakers[1];
             const operatorShare = 39;
-            const poolId = await stakingWrapper.createStakingPoolAsync(poolOperator, operatorShare);
+            const poolId = await stakingWrapper.createStakingPoolAsync(poolOperator, operatorShare, true);
             // run test
             const delegator = new DelegatorActor(stakers[0], stakingWrapper);
             await delegator.depositZrxAndDelegateToStakingPoolAsync(poolId, amountToDelegate);

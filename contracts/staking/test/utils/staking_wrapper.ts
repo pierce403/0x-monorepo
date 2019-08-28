@@ -323,8 +323,15 @@ export class StakingWrapper {
         const nextPoolId = await this._callAsync(calldata);
         return nextPoolId;
     }
-    public async createStakingPoolAsync(operatorAddress: string, operatorShare: number): Promise<string> {
-        const calldata = this.getStakingContract().createStakingPool.getABIEncodedTransactionData(operatorShare);
+    public async createStakingPoolAsync(
+        operatorAddress: string,
+        operatorShare: number,
+        addOperatorAsMaker: boolean,
+    ): Promise<string> {
+        const calldata = this.getStakingContract().createStakingPool.getABIEncodedTransactionData(
+            operatorShare,
+            addOperatorAsMaker,
+        );
         const txReceipt = await this._executeTransactionAsync(calldata, operatorAddress);
         const createStakingPoolLog = this._logDecoder.decodeLogOrThrow(txReceipt.logs[0]);
         const poolId = (createStakingPoolLog as any).args.poolId;

@@ -46,7 +46,7 @@ blockchainTests('Staking Pool Management', env => {
             const operatorShare = 39;
             const poolOperator = new PoolOperatorActor(operatorAddress, stakingWrapper);
             // create pool
-            const poolId = await poolOperator.createStakingPoolAsync(operatorShare);
+            const poolId = await poolOperator.createStakingPoolAsync(operatorShare, true);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
             // check that the next pool id was incremented
             const nextPoolId = await stakingWrapper.getNextStakingPoolIdAsync();
@@ -60,7 +60,7 @@ blockchainTests('Staking Pool Management', env => {
             const makerAddress = users[1];
             const maker = new MakerActor(makerAddress, stakingWrapper);
             // create pool
-            const poolId = await poolOperator.createStakingPoolAsync(operatorShare);
+            const poolId = await poolOperator.createStakingPoolAsync(operatorShare, true);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
             // maker joins pool
             await maker.joinStakingPoolAsync(poolId);
@@ -77,7 +77,7 @@ blockchainTests('Staking Pool Management', env => {
             const makerAddress = users[1];
             const maker = new MakerActor(makerAddress, stakingWrapper);
             // create pool
-            const poolId = await poolOperator.createStakingPoolAsync(operatorShare);
+            const poolId = await poolOperator.createStakingPoolAsync(operatorShare, true);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
             // maker joins pool
             await maker.joinStakingPoolAsync(poolId);
@@ -98,7 +98,7 @@ blockchainTests('Staking Pool Management', env => {
                 new MakerActor(makerAddresses[2], stakingWrapper),
             ];
             // create pool
-            const poolId = await poolOperator.createStakingPoolAsync(operatorShare);
+            const poolId = await poolOperator.createStakingPoolAsync(operatorShare, true);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
             // add makers to pool
             await Promise.all([
@@ -128,8 +128,8 @@ blockchainTests('Staking Pool Management', env => {
             const maker = new MakerActor(makerAddress, stakingWrapper);
 
             // create pools
-            const assignedPoolId = await assignedPoolOperator.createStakingPoolAsync(operatorShare);
-            const otherPoolId = await otherPoolOperator.createStakingPoolAsync(operatorShare);
+            const assignedPoolId = await assignedPoolOperator.createStakingPoolAsync(operatorShare, true);
+            const otherPoolId = await otherPoolOperator.createStakingPoolAsync(operatorShare, true);
             expect(assignedPoolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
             expect(otherPoolId).to.be.equal(stakingConstants.SECOND_POOL_ID);
 
@@ -151,7 +151,7 @@ blockchainTests('Staking Pool Management', env => {
             const makerAddress = users[1];
 
             // create pool
-            const poolId = await poolOperator.createStakingPoolAsync(operatorShare);
+            const poolId = await poolOperator.createStakingPoolAsync(operatorShare, true);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
 
             const revertError = new StakingRevertErrors.MakerNotPendingJoinError(
@@ -172,8 +172,8 @@ blockchainTests('Staking Pool Management', env => {
             const maker = new MakerActor(makerAddress, stakingWrapper);
 
             // create pools
-            const joinedPoolId = await assignedPoolOperator.createStakingPoolAsync(operatorShare);
-            const otherPoolId = await otherPoolOperator.createStakingPoolAsync(operatorShare);
+            const joinedPoolId = await assignedPoolOperator.createStakingPoolAsync(operatorShare, true);
+            const otherPoolId = await otherPoolOperator.createStakingPoolAsync(operatorShare, true);
             expect(joinedPoolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
             expect(otherPoolId).to.be.equal(stakingConstants.SECOND_POOL_ID);
 
@@ -196,7 +196,7 @@ blockchainTests('Staking Pool Management', env => {
             const makerAddress = users[1];
             const maker = new MakerActor(makerAddress, stakingWrapper);
             // create pool
-            const poolId = await poolOperator.createStakingPoolAsync(operatorShare);
+            const poolId = await poolOperator.createStakingPoolAsync(operatorShare, true);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
             // add maker to pool
             await maker.joinStakingPoolAsync(poolId);
@@ -212,7 +212,7 @@ blockchainTests('Staking Pool Management', env => {
             const poolOperator = new PoolOperatorActor(operatorAddress, stakingWrapper);
             const makerAddress = users[1];
             // create pool
-            const poolId = await poolOperator.createStakingPoolAsync(operatorShare);
+            const poolId = await poolOperator.createStakingPoolAsync(operatorShare, true);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
             const revertError = new StakingRevertErrors.MakerAddressNotRegisteredError(
                 makerAddress,
@@ -231,7 +231,7 @@ blockchainTests('Staking Pool Management', env => {
             const maker = new MakerActor(makerAddress, stakingWrapper);
             const notOperatorAddress = users[2];
             // create pool
-            const poolId = await poolOperator.createStakingPoolAsync(operatorShare);
+            const poolId = await poolOperator.createStakingPoolAsync(operatorShare, true);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
             // add maker to pool
             await maker.joinStakingPoolAsync(poolId);
@@ -251,7 +251,7 @@ blockchainTests('Staking Pool Management', env => {
             const maker = new MakerActor(makerAddress, stakingWrapper);
             const neitherOperatorNorMakerAddress = users[2];
             // create pool
-            const poolId = await poolOperator.createStakingPoolAsync(operatorShare);
+            const poolId = await poolOperator.createStakingPoolAsync(operatorShare, true);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
             // add maker to pool
             await maker.joinStakingPoolAsync(poolId);
@@ -279,7 +279,7 @@ blockchainTests('Staking Pool Management', env => {
             const makers = makerAddresses.map(makerAddress => new MakerActor(makerAddress, stakingWrapper));
 
             // create pool
-            const poolId = await poolOperator.createStakingPoolAsync(operatorShare);
+            const poolId = await poolOperator.createStakingPoolAsync(operatorShare, false);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
 
             // add makers to pool
