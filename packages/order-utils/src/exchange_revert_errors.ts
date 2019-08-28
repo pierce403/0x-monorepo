@@ -280,6 +280,7 @@ const types = [
     TransactionSignatureError,
     TransactionExecutionError,
     IncompleteFillError,
+    TransactionGasPriceError,
 ];
 
 // Register the types we've defined.
