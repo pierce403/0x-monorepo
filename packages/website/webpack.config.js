@@ -32,6 +32,9 @@ const config = {
             md: path.join(__dirname, '/md'),
         },
     },
+    node: {
+        fs: 'empty',
+    },
     module: {
         rules: [
             {
