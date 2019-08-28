@@ -269,6 +269,31 @@ blockchainTests('Staking Pool Management', env => {
             );
             await expect(tx).to.revertWith(revertError);
         });
+        it('Should fail to add a maker if the pool is full', async () => {
+            // test parameters
+            const operatorAddress = users[0];
+            const operatorShare = 39;
+            const poolOperator = new PoolOperatorActor(operatorAddress, stakingWrapper);
+
+            const makerAddresses = users.slice(1, stakingConstants.MAX_POOL_SIZE + 2);
+            const makers = makerAddresses.map(makerAddress => new MakerActor(makerAddress, stakingWrapper));
+
+            // create pool
+            const poolId = await poolOperator.createStakingPoolAsync(operatorShare);
+            expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
+
+            // add makers to pool
+            await Promise.all(makers.map(maker => maker.joinStakingPoolAsync(poolId)));
+            await Promise.all(
+                _.initial(makerAddresses).map(makerAddress =>
+                    poolOperator.addMakerToStakingPoolAsync(poolId, makerAddress),
+                ),
+            );
+
+            // Try to add last one more maker to the pool
+            const revertError = new StakingRevertErrors.PoolIsFullError(poolId);
+            await poolOperator.addMakerToStakingPoolAsync(poolId, _.last(makerAddresses) as string, revertError);
+        });
     });
 });
 // tslint:enable:no-unnecessary-type-assertion

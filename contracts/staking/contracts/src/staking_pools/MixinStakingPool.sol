@@ -177,7 +177,7 @@ contract MixinStakingPool is
 
         // Is the pool already full?
         if (getSizeOfStakingPool(poolId) == MAX_POOL_SIZE) {
-            LibRichErrors.rrevert(LibStakingRichErrors.StakingPoolIsFullError(poolId));
+            LibRichErrors.rrevert(LibStakingRichErrors.PoolIsFullError(poolId));
         }
 
         poolIdByMakerAddress[makerAddress] = poolId;
