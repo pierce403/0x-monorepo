@@ -21,7 +21,6 @@ export interface SimulationParams {
     users: string[];
     numberOfPools: number;
     poolOperatorShares: number[];
-    // addOperatorsAsMakers: boolean[];
     stakeByPoolOperator: BigNumber[];
     numberOfMakers: number;
     numberOfMakersPerPool: number[];

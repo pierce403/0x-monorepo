@@ -20,7 +20,6 @@ export class Simulation {
     private _userQueue: Queue<string>;
     private readonly _poolOperators: PoolOperatorActor[];
     private readonly _poolOperatorsAsDelegators: DelegatorActor[];
-    // private readonly _poolOperatorsAsMakers: MakerActor[];
     private readonly _poolIds: string[];
     private readonly _makers: MakerActor[];
     private readonly _delegators: DelegatorActor[];
@@ -31,7 +30,6 @@ export class Simulation {
         this._userQueue = new Queue<string>();
         this._poolOperators = [];
         this._poolOperatorsAsDelegators = [];
-        // this._poolOperatorsAsMakers = [];
         this._poolIds = [];
         this._makers = [];
         this._delegators = [];
