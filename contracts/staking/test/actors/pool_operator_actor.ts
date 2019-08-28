@@ -7,11 +7,19 @@ import { constants as stakingConstants } from '../utils/constants';
 import { BaseActor } from './base_actor';
 
 export class PoolOperatorActor extends BaseActor {
-    public async createStakingPoolAsync(operatorShare: number, addOperatorAsMaker: boolean, revertError?: RevertError): Promise<string> {
+    public async createStakingPoolAsync(
+        operatorShare: number,
+        addOperatorAsMaker: boolean,
+        revertError?: RevertError,
+    ): Promise<string> {
         // query next pool id
         const nextPoolId = await this._stakingWrapper.getNextStakingPoolIdAsync();
         // create pool
-        const poolIdPromise = this._stakingWrapper.createStakingPoolAsync(this._owner, operatorShare, addOperatorAsMaker);
+        const poolIdPromise = this._stakingWrapper.createStakingPoolAsync(
+            this._owner,
+            operatorShare,
+            addOperatorAsMaker,
+        );
         if (revertError !== undefined) {
             await expect(poolIdPromise).to.revertWith(revertError);
             return '';
