@@ -46,6 +46,18 @@ blockchainTests('Staking Pool Management', env => {
             const operatorShare = 39;
             const poolOperator = new PoolOperatorActor(operatorAddress, stakingWrapper);
             // create pool
+            const poolId = await poolOperator.createStakingPoolAsync(operatorShare, false);
+            expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
+            // check that the next pool id was incremented
+            const nextPoolId = await stakingWrapper.getNextStakingPoolIdAsync();
+            expect(nextPoolId).to.be.equal(stakingConstants.SECOND_POOL_ID);
+        });
+        it('Should successfully create a pool and add owner as a maker', async () => {
+            // test parameters
+            const operatorAddress = users[0];
+            const operatorShare = 39;
+            const poolOperator = new PoolOperatorActor(operatorAddress, stakingWrapper);
+            // create pool
             const poolId = await poolOperator.createStakingPoolAsync(operatorShare, true);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
             // check that the next pool id was incremented
