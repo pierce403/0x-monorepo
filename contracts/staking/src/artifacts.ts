@@ -17,7 +17,6 @@ import * as LibFeeMath from '../generated-artifacts/LibFeeMath.json';
 import * as LibFeeMathTest from '../generated-artifacts/LibFeeMathTest.json';
 import * as LibRewardMath from '../generated-artifacts/LibRewardMath.json';
 import * as LibSafeDowncast from '../generated-artifacts/LibSafeDowncast.json';
-import * as LibSignatureValidator from '../generated-artifacts/LibSignatureValidator.json';
 import * as LibStakingRichErrors from '../generated-artifacts/LibStakingRichErrors.json';
 import * as MixinConstants from '../generated-artifacts/MixinConstants.json';
 import * as MixinDelegatedStake from '../generated-artifacts/MixinDelegatedStake.json';
@@ -58,7 +57,6 @@ export const artifacts = {
     LibFeeMath: LibFeeMath as ContractArtifact,
     LibRewardMath: LibRewardMath as ContractArtifact,
     LibSafeDowncast: LibSafeDowncast as ContractArtifact,
-    LibSignatureValidator: LibSignatureValidator as ContractArtifact,
     LibStakingRichErrors: LibStakingRichErrors as ContractArtifact,
     MixinDelegatedStake: MixinDelegatedStake as ContractArtifact,
     MixinStake: MixinStake as ContractArtifact,

@@ -15,7 +15,6 @@ export * from '../generated-wrappers/lib_fee_math';
 export * from '../generated-wrappers/lib_fee_math_test';
 export * from '../generated-wrappers/lib_reward_math';
 export * from '../generated-wrappers/lib_safe_downcast';
-export * from '../generated-wrappers/lib_signature_validator';
 export * from '../generated-wrappers/lib_staking_rich_errors';
 export * from '../generated-wrappers/mixin_constants';
 export * from '../generated-wrappers/mixin_delegated_stake';

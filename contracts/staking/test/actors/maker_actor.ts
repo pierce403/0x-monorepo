@@ -7,9 +7,9 @@ import { constants as stakingConstants } from '../utils/constants';
 import { BaseActor } from './base_actor';
 
 export class MakerActor extends BaseActor {
-    public async joinStakingPoolAsync(poolId: string, revertError?: RevertError): Promise<void> {
+    public async joinStakingPoolAsMakerAsync(poolId: string, revertError?: RevertError): Promise<void> {
         // Join pool
-        const txReceiptPromise = this._stakingWrapper.joinStakingPoolAsync(poolId, this._owner);
+        const txReceiptPromise = this._stakingWrapper.joinStakingPoolAsMakerAsync(poolId, this._owner);
 
         if (revertError !== undefined) {
             await expect(txReceiptPromise).to.revertWith(revertError);

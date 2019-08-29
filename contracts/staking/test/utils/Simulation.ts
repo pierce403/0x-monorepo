@@ -148,7 +148,7 @@ export class Simulation {
             // tslint:disable-next-line no-unused-variable
             for (const j of _.range(numberOfMakersInPool)) {
                 const maker = this._makers[makerIdx];
-                await maker.joinStakingPoolAsync(poolId);
+                await maker.joinStakingPoolAsMakerAsync(poolId);
                 const makerAddress = maker.getOwner();
                 await poolOperator.addMakerToStakingPoolAsync(poolId, makerAddress);
                 makerIdx += 1;

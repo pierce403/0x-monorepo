@@ -15,7 +15,6 @@
         "generated-artifacts/LibFeeMathTest.json",
         "generated-artifacts/LibRewardMath.json",
         "generated-artifacts/LibSafeDowncast.json",
-        "generated-artifacts/LibSignatureValidator.json",
         "generated-artifacts/LibStakingRichErrors.json",
         "generated-artifacts/MixinConstants.json",
         "generated-artifacts/MixinDelegatedStake.json",

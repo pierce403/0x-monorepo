@@ -22,8 +22,6 @@ pragma experimental ABIEncoderV2;
 import "@0x/contracts-utils/contracts/src/LibRichErrors.sol";
 import "@0x/contracts-utils/contracts/src/LibSafeMath.sol";
 import "../libs/LibStakingRichErrors.sol";
-import "../libs/LibSignatureValidator.sol";
-import "../libs/LibEIP712Hash.sol";
 import "../interfaces/IStructs.sol";
 import "../interfaces/IStakingEvents.sol";
 import "../immutable/MixinConstants.sol";
@@ -145,7 +143,7 @@ contract MixinStakingPool is
         return poolId;
     }
 
-    function joinStakingPool(
+    function joinStakingPoolAsMaker(
         bytes32 poolId
     )
         external
@@ -161,14 +159,14 @@ contract MixinStakingPool is
         pendingPoolJoinedByMakerAddress[makerAddress] = poolId;
 
         // notify
-        emit PendingStakingPoolJoin(
+        emit PendingAddMakerToPool(
             poolId,
             makerAddress
         );
     }
 
     /// @dev Adds a maker to a staking pool. Note that this is only callable by the pool operator.
-    /// Note also that the maker must have previously called joinStakingPool.
+    /// Note also that the maker must have previously called joinStakingPoolAsMaker.
     /// @param poolId Unique id of pool.
     /// @param makerAddress Address of maker.
     function addMakerToStakingPool(
@@ -196,7 +194,7 @@ contract MixinStakingPool is
         }
 
         // Is the pool already full?
-        if (getSizeOfStakingPool(poolId) == MAX_POOL_SIZE) {
+        if (getNumberOfMakersInStakingPool(poolId) == MAX_MAKERS_IN_POOL) {
             LibRichErrors.rrevert(LibStakingRichErrors.PoolIsFullError(poolId));
         }
 
@@ -307,7 +305,7 @@ contract MixinStakingPool is
     /// @dev Returns the current number of makers in a given pool.
     /// @param poolId Unique id of pool.
     /// @return Size of pool.
-    function getSizeOfStakingPool(bytes32 poolId)
+    function getNumberOfMakersInStakingPool(bytes32 poolId)
         public
         view
         returns (uint256)

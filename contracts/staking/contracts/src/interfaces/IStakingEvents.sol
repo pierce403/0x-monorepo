@@ -80,7 +80,7 @@ interface IStakingEvents {
     /// @dev Emitted by MixinStakingPool when a new maker requests to join a pool.
     /// @param poolId Unique id of pool.
     /// @param makerAddress Adress of maker joining the pool.
-    event PendingStakingPoolJoin(
+    event PendingAddMakerToPool(
         bytes32 poolId,
         address makerAddress
     );

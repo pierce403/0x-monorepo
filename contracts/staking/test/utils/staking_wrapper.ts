@@ -337,11 +337,11 @@ export class StakingWrapper {
         const poolId = (createStakingPoolLog as any).args.poolId;
         return poolId;
     }
-    public async joinStakingPoolAsync(
+    public async joinStakingPoolAsMakerAsync(
         poolId: string,
         makerAddress: string,
     ): Promise<TransactionReceiptWithDecodedLogs> {
-        const calldata = this.getStakingContract().joinStakingPool.getABIEncodedTransactionData(poolId);
+        const calldata = this.getStakingContract().joinStakingPoolAsMaker.getABIEncodedTransactionData(poolId);
         const txReceipt = await this._executeTransactionAsync(calldata, makerAddress);
         return txReceipt;
     }

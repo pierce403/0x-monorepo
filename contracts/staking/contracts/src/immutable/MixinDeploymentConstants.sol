@@ -33,5 +33,5 @@ contract MixinDeploymentConstants {
 
     uint256 constant internal CHAIN_ID = 1;
 
-    uint256 constant internal MAX_POOL_SIZE = 10;
+    uint256 constant internal MAX_MAKERS_IN_POOL = 10;
 }
