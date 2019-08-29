@@ -67,15 +67,12 @@ contract MixinStorage is
     // mapping from Pool Id to Pool
     mapping (bytes32 => IStructs.Pool) internal poolById;
 
-    // mapping from Maker Address to Pool Id
-    // A Maker can only hold a single token
-    mapping (address => bytes32) internal poolIdByMakerAddress;
+    // mapping from Maker Address to a struct representing the pool the maker has joined and
+    // whether the operator of that pool has subsequently added the maker.
+    mapping (address => IStructs.MakerPoolJoinStatus) internal poolJoinedByMakerAddress;
 
     // mapping from Pool Id to Addresses
     mapping (bytes32 => address[]) internal makerAddressesByPoolId;
-
-    // mapping from Maker Address to Pool Id
-    mapping (address => bytes32) internal pendingPoolJoinedByMakerAddress;
 
     // current epoch
     uint256 internal currentEpoch = INITIAL_EPOCH;

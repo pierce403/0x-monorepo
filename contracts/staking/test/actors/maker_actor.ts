@@ -20,10 +20,6 @@ export class MakerActor extends BaseActor {
         // Pool id of the maker should be nil (join would've thrown otherwise)
         const poolIdOfMaker = await this._stakingWrapper.getStakingPoolIdOfMakerAsync(this._owner);
         expect(poolIdOfMaker, 'pool id of maker').to.be.equal(stakingConstants.NIL_POOL_ID);
-
-        // Check the pending pool of the maker
-        const pendingPoolJoinedByMaker = await this._stakingWrapper.getPendingPoolJoinedByMakerAsync(this._owner);
-        expect(pendingPoolJoinedByMaker, 'pending pool joined by maker').to.be.equal(poolId);
     }
 
     public async removeMakerFromStakingPoolAsync(

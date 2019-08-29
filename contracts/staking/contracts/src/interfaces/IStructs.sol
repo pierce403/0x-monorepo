@@ -49,4 +49,13 @@ interface IStructs {
         uint96 total;
         uint96 pending;
     }
+
+    /// @dev State for keeping track of which pool a maker has joined, and if the operator has
+    /// added them (see MixinStakingPool).
+    /// @param poolId Unique Id of staking pool.
+    /// @param confirmed Whether the operator has added the maker to the pool.
+    struct MakerPoolJoinStatus {
+        bytes32 poolId;
+        bool confirmed;
+    }
 }

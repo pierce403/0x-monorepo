@@ -130,7 +130,11 @@ contract MixinStakingPool is
                 ));
             }
 
-            poolIdByMakerAddress[operatorAddress] = poolId;
+            IStructs.MakerPoolJoinStatus memory poolJoinStatus = IStructs.MakerPoolJoinStatus({
+                poolId: poolId,
+                confirmed: true
+            });
+            poolJoinedByMakerAddress[operatorAddress] = poolJoinStatus;
             makerAddressesByPoolId[poolId].push(operatorAddress);
 
             // notify
@@ -156,7 +160,11 @@ contract MixinStakingPool is
             ));
         }
 
-        pendingPoolJoinedByMakerAddress[makerAddress] = poolId;
+        IStructs.MakerPoolJoinStatus memory poolJoinStatus = IStructs.MakerPoolJoinStatus({
+            poolId: poolId,
+            confirmed: false
+        });
+        poolJoinedByMakerAddress[makerAddress] = poolJoinStatus;
 
         // notify
         emit PendingAddMakerToPool(
@@ -184,11 +192,11 @@ contract MixinStakingPool is
         }
 
         // Is the maker trying to join this pool?
-        bytes32 pendingJoinPoolId = getPendingPoolJoinedByMaker(makerAddress);
-        if (pendingJoinPoolId != poolId) {
+        bytes32 makerPendingPoolId = poolJoinedByMakerAddress[makerAddress].poolId;
+        if (makerPendingPoolId != poolId) {
             LibRichErrors.rrevert(LibStakingRichErrors.MakerNotPendingJoinError(
                 makerAddress,
-                pendingJoinPoolId,
+                makerPendingPoolId,
                 poolId
             ));
         }
@@ -198,9 +206,13 @@ contract MixinStakingPool is
             LibRichErrors.rrevert(LibStakingRichErrors.PoolIsFullError(poolId));
         }
 
-        poolIdByMakerAddress[makerAddress] = poolId;
+        // Add maker to pool
+        IStructs.MakerPoolJoinStatus memory poolJoinStatus = IStructs.MakerPoolJoinStatus({
+            poolId: poolId,
+            confirmed: true
+        });
+        poolJoinedByMakerAddress[makerAddress] = poolJoinStatus;
         makerAddressesByPoolId[poolId].push(makerAddress);
-        pendingPoolJoinedByMakerAddress[makerAddress] = NIL_MAKER_ID;
 
         // notify
         emit MakerAddedToStakingPool(
@@ -252,8 +264,12 @@ contract MixinStakingPool is
         makerAddressesByPoolIdPtr[indexOfLastMakerAddress] = NIL_ADDRESS;
         makerAddressesByPoolIdPtr.length -= 1;
 
-        // reset the pool id assigned to the maker.
-        poolIdByMakerAddress[makerAddress] = NIL_MAKER_ID;
+        // remove the pool and confirmation from the maker status
+        IStructs.MakerPoolJoinStatus memory poolJoinStatus = IStructs.MakerPoolJoinStatus({
+            poolId: NIL_MAKER_ID,
+            confirmed: false
+        });
+        poolJoinedByMakerAddress[makerAddress] = poolJoinStatus;
 
         // notify
         emit MakerRemovedFromStakingPool(
@@ -262,22 +278,19 @@ contract MixinStakingPool is
         );
     }
 
-    /// @dev Returns the pool id of an input maker.
+    /// @dev Returns the pool id of the input maker.
+    /// @param makerAddress Address of maker
+    /// @return Pool id, nil if maker is not yet assigned to a pool.
     function getStakingPoolIdOfMaker(address makerAddress)
         public
         view
         returns (bytes32)
     {
-        return poolIdByMakerAddress[makerAddress];
-    }
-
-    /// @dev Returns the pool id that the input maker is pending to join.
-    function getPendingPoolJoinedByMaker(address makerAddress)
-        public
-        view
-        returns (bytes32)
-    {
-        return pendingPoolJoinedByMakerAddress[makerAddress];
+        if (isMakerAssignedToStakingPool(makerAddress)) {
+            return poolJoinedByMakerAddress[makerAddress].poolId;
+        } else {
+            return NIL_MAKER_ID;
+        }
     }
 
     /// @dev Returns true iff the maker is assigned to a staking pool.
@@ -288,7 +301,7 @@ contract MixinStakingPool is
         view
         returns (bool)
     {
-        return getStakingPoolIdOfMaker(makerAddress) != NIL_MAKER_ID;
+        return poolJoinedByMakerAddress[makerAddress].confirmed;
     }
 
     /// @dev Returns the makers for a given pool.
