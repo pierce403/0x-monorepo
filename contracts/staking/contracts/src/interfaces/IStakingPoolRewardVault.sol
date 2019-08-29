@@ -139,10 +139,12 @@ interface IStakingPoolRewardVault {
     )
         external;
 
-    /// @dev Decreases the operator share for the given pool (i.e. increases pool rewards for members)
+    /// @dev Decreases the operator share for the given pool (i.e. increases pool rewards for members).
+    /// Note that this is only callable by the staking contract, and will revert if the new operator
+    /// share value is greater than the old value.
     /// @param poolId Unique Id of pool.
-    /// @param amountToDecrease The amount to decrease the operatorShare by.
-    function decreaseOperatorShare(bytes32 poolId, uint8 amountToDecrease)
+    /// @param newOperatorShare The newly decresaed percentage of any rewards owned by the operator.
+    function decreaseOperatorShare(bytes32 poolId, uint8 newOperatorShare)
         external;
 
     /// @dev Returns the address of the operator of a given pool

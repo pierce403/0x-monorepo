@@ -113,7 +113,7 @@ export class BlockTimestampTooLowError extends RevertError {
     constructor(epochEndTime?: BigNumber | number | string, currentBlockTimestamp?: BigNumber | number | string) {
         super(
             'BlockTimestampTooLowError',
-            'BlockTimestampTooLowError(uint64 epochEndTime, uint64 currentBlockTimestamp)',
+            'BlockTimestampTooLowError(uint256 epochEndTime, uint256 currentBlockTimestamp)',
             { epochEndTime, currentBlockTimestamp },
         );
     }
@@ -150,11 +150,25 @@ export class AmountExceedsBalanceOfPoolError extends RevertError {
 }
 
 export class OperatorShareMustBeBetween0And100Error extends RevertError {
-    constructor(poolId?: string, poolOperatorShare?: BigNumber | number | string) {
+    constructor(poolId?: string, operatorShare?: BigNumber | number | string) {
         super(
             'OperatorShareMustBeBetween0And100Error',
-            'OperatorShareMustBeBetween0And100Error(bytes32 poolId, uint8 poolOperatorShare)',
-            { poolId, poolOperatorShare },
+            'OperatorShareMustBeBetween0And100Error(bytes32 poolId, uint8 operatorShare)',
+            { poolId, operatorShare },
+        );
+    }
+}
+
+export class CannotIncreaseOperatorShareError extends RevertError {
+    constructor(
+        poolId?: string,
+        oldOperatorShare?: BigNumber | number | string,
+        newOperatorShare?: BigNumber | number | string,
+    ) {
+        super(
+            'CannotIncreaseOperatorShareError',
+            'CannotIncreaseOperatorShareError(bytes32 poolId, uint8 oldOperatorShare, uint8 newOperatorShare)',
+            { poolId, oldOperatorShare, newOperatorShare },
         );
     }
 }
@@ -184,6 +198,7 @@ const types = [
     OnlyCallableIfNotInCatastrophicFailureError,
     AmountExceedsBalanceOfPoolError,
     OperatorShareMustBeBetween0And100Error,
+    CannotIncreaseOperatorShareError,
     PoolAlreadyExistsError,
 ];
 

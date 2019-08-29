@@ -208,7 +208,7 @@ contract MixinStakingPool is
         uint256 makerAddressesByPoolIdLength = makerAddressesByPoolIdPtr.length;
 
         // find index of maker to remove.
-        uint indexOfMakerAddress = 0;
+        uint256 indexOfMakerAddress = 0;
         for (; indexOfMakerAddress < makerAddressesByPoolIdLength; ++indexOfMakerAddress) {
             if (makerAddressesByPoolIdPtr[indexOfMakerAddress] == makerAddress) {
                 break;
@@ -242,12 +242,12 @@ contract MixinStakingPool is
     /// @dev Decreases the operator share for the given pool (i.e. increases pool rewards for members)
     /// Note that this is only callable by the pool operator.
     /// @param poolId Unique Id of pool.
-    /// @param amountToDecrease The amount to decrease the operatorShare by.
-    function decreaseStakingPoolOperatorShare(bytes32 poolId, uint8 amountToDecrease)
+    /// @param newOperatorShare The newly decresaed percentage of any rewards owned by the operator.
+    function decreaseStakingPoolOperatorShare(bytes32 poolId, uint8 newOperatorShare)
         external
         onlyStakingPoolOperator(poolId)
     {
-        _decreaseOperatorShareInStakingPoolRewardVault(poolId, amountToDecrease);
+        _decreaseOperatorShareInStakingPoolRewardVault(poolId, newOperatorShare);
     }
 
     /// @dev Returns the pool id of the input maker.

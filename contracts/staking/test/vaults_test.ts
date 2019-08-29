@@ -45,14 +45,29 @@ blockchainTests('Staking Vaults', env => {
             const stakingContractAddress = stakingWrapper.getStakingContract().address;
             const notStakingContractAddress = poolOperator;
             // create pool in vault
-            await stakingWrapper.rewardVaultRegisterPoolAsync(poolId, poolOperator, operatorShare, stakingContractAddress);
+            await stakingWrapper.rewardVaultRegisterPoolAsync(
+                poolId,
+                poolOperator,
+                operatorShare,
+                stakingContractAddress,
+            );
             // should fail to create pool if it already exists
             let revertError = new StakingRevertErrors.PoolAlreadyExistsError(poolId);
-            let tx = stakingWrapper.rewardVaultRegisterPoolAsync(poolId, poolOperator, operatorShare, stakingContractAddress);
+            let tx = stakingWrapper.rewardVaultRegisterPoolAsync(
+                poolId,
+                poolOperator,
+                operatorShare,
+                stakingContractAddress,
+            );
             await expect(tx).to.revertWith(revertError);
             // should fail to create a pool from an address other than the staking contract
             revertError = new StakingRevertErrors.OnlyCallableByStakingContractError(notStakingContractAddress);
-            tx = stakingWrapper.rewardVaultRegisterPoolAsync(poolId, poolOperator, operatorShare, notStakingContractAddress);
+            tx = stakingWrapper.rewardVaultRegisterPoolAsync(
+                poolId,
+                poolOperator,
+                operatorShare,
+                notStakingContractAddress,
+            );
             await expect(tx).to.revertWith(revertError);
         });
     });

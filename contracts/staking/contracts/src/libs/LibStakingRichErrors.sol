@@ -94,6 +94,10 @@ library LibStakingRichErrors {
     bytes4 internal constant OPERATOR_SHARE_MUST_BE_BETWEEN_0_AND_100_ERROR_SELECTOR =
         0xde447684;
 
+    // bytes4(keccak256("CannotIncreaseOperatorShareError(bytes32,uint8,uint8)"))
+    bytes4 internal constant CANNOT_INCREASE_OPERATOR_SHARE_ERROR_SELECTOR =
+        0x1821fa91;
+
     // bytes4(keccak256("PoolAlreadyExistsError(bytes32)"))
     bytes4 internal constant POOL_ALREADY_EXISTS_ERROR_SELECTOR =
         0x2a5e4dcf;
@@ -336,7 +340,7 @@ library LibStakingRichErrors {
 
     function OperatorShareMustBeBetween0And100Error(
         bytes32 poolId,
-        uint8 poolOperatorShare
+        uint8 operatorShare
     )
         internal
         pure
@@ -345,7 +349,24 @@ library LibStakingRichErrors {
         return abi.encodeWithSelector(
             OPERATOR_SHARE_MUST_BE_BETWEEN_0_AND_100_ERROR_SELECTOR,
             poolId,
-            poolOperatorShare
+            operatorShare
+        );
+    }
+
+    function CannotIncreaseOperatorShareError(
+        bytes32 poolId,
+        uint8 oldOperatorShare,
+        uint8 newOperatorShare
+    )
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodeWithSelector(
+            CANNOT_INCREASE_OPERATOR_SHARE_ERROR_SELECTOR,
+            poolId,
+            oldOperatorShare,
+            newOperatorShare
         );
     }
 

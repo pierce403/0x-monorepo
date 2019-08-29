@@ -189,10 +189,12 @@ contract StakingPoolRewardVault is
         emit StakingPoolRegistered(poolId, operatorShare);
     }
 
-    /// @dev Decreases the operator share for the given pool (i.e. increases pool rewards for members)
+    /// @dev Decreases the operator share for the given pool (i.e. increases pool rewards for members).
+    /// Note that this is only callable by the staking contract, and will revert if the new operator
+    /// share value is greater than the old value.
     /// @param poolId Unique Id of pool.
-    /// @param amountToDecrease The amount to decrease the operatorShare by.
-    function decreaseOperatorShare(bytes32 poolId, uint8 amountToDecrease)
+    /// @param newOperatorShare The newly decresaed percentage of any rewards owned by the operator.
+    function decreaseOperatorShare(bytes32 poolId, uint8 newOperatorShare)
         external
         onlyStakingContract
         onlyNotInCatastrophicFailure
@@ -200,15 +202,17 @@ contract StakingPoolRewardVault is
         Pool memory pool = poolById[poolId];
         uint8 oldOperatorShare = pool.operatorShare;
 
-        uint8 newOperatorShare;
-        if (amountToDecrease > oldOperatorShare) {
-            newOperatorShare = 0;
+        if (newOperatorShare > oldOperatorShare) {
+            LibRichErrors.rrevert(LibStakingRichErrors.CannotIncreaseOperatorShareError(
+                poolId,
+                oldOperatorShare,
+                newOperatorShare
+            ));
         } else {
-            newOperatorShare = oldOperatorShare - amountToDecrease;
+            pool.operatorShare = newOperatorShare;
+            poolById[poolId] = pool;
+            emit OperatorShareDecreased(poolId, oldOperatorShare, newOperatorShare);
         }
-
-        pool.operatorShare = newOperatorShare;
-        emit OperatorShareDecreased(poolId, oldOperatorShare, newOperatorShare);
     }
 
     /// @dev Returns the address of the operator of a given pool

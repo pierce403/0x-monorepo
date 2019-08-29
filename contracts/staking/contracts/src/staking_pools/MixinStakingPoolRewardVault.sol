@@ -150,13 +150,13 @@ contract MixinStakingPoolRewardVault is
 
     /// @dev Decreases the operator share for the given pool (i.e. increases pool rewards for members)
     /// @param poolId Unique Id of pool.
-    /// @param amountToDecrease The amount to decrease the operatorShare by.
-    function _decreaseOperatorShareInStakingPoolRewardVault(bytes32 poolId, uint8 amountToDecrease)
+    /// @param newOperatorShare The newly decresaed percentage of any rewards owned by the operator.
+    function _decreaseOperatorShareInStakingPoolRewardVault(bytes32 poolId, uint8 newOperatorShare)
         internal
     {
         rewardVault.decreaseOperatorShare(
             poolId,
-            amountToDecrease
+            newOperatorShare
         );
     }
 
