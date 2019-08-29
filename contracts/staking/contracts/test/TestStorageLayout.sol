@@ -49,20 +49,19 @@ contract TestStorageLayout is
             if sub(delegatedStakeByPoolId_slot, 7) { revertIncorrectStorageSlot() }
             if sub(totalActivatedStake_slot, 8) { revertIncorrectStorageSlot() }
             if sub(nextPoolId_slot, 9) { revertIncorrectStorageSlot() }
-            if sub(poolById_slot, 10) { revertIncorrectStorageSlot() }
-            if sub(poolJoinedByMakerAddress_slot, 11) { revertIncorrectStorageSlot() }
-            if sub(makerAddressesByPoolId_slot, 12) { revertIncorrectStorageSlot() }
-            if sub(currentEpoch_slot, 13) { revertIncorrectStorageSlot() }
-            if sub(currentEpochStartTimeInSeconds_slot, 14) { revertIncorrectStorageSlot() }
-            if sub(currentTimeLockPeriod_slot, 15) { revertIncorrectStorageSlot() }
-            if sub(currentTimeLockPeriodStartEpoch_slot, 16) { revertIncorrectStorageSlot() }
-            if sub(protocolFeesThisEpochByPool_slot, 17) { revertIncorrectStorageSlot() }
-            if sub(activePoolsThisEpoch_slot, 18) { revertIncorrectStorageSlot() }
-            if sub(shadowRewardsByPoolId_slot, 19) { revertIncorrectStorageSlot() }
-            if sub(shadowRewardsInPoolByOwner_slot, 20) { revertIncorrectStorageSlot() }
-            if sub(validExchanges_slot, 21) { revertIncorrectStorageSlot() }
-            if sub(zrxVault_slot, 22) { revertIncorrectStorageSlot() }
-            if sub(rewardVault_slot, 23) { revertIncorrectStorageSlot() }
+            if sub(poolJoinedByMakerAddress_slot, 10) { revertIncorrectStorageSlot() }
+            if sub(makerAddressesByPoolId_slot, 11) { revertIncorrectStorageSlot() }
+            if sub(currentEpoch_slot, 12) { revertIncorrectStorageSlot() }
+            if sub(currentEpochStartTimeInSeconds_slot, 13) { revertIncorrectStorageSlot() }
+            if sub(currentTimeLockPeriod_slot, 14) { revertIncorrectStorageSlot() }
+            if sub(currentTimeLockPeriodStartEpoch_slot, 15) { revertIncorrectStorageSlot() }
+            if sub(protocolFeesThisEpochByPool_slot, 16) { revertIncorrectStorageSlot() }
+            if sub(activePoolsThisEpoch_slot, 17) { revertIncorrectStorageSlot() }
+            if sub(shadowRewardsByPoolId_slot, 18) { revertIncorrectStorageSlot() }
+            if sub(shadowRewardsInPoolByOwner_slot, 19) { revertIncorrectStorageSlot() }
+            if sub(validExchanges_slot, 20) { revertIncorrectStorageSlot() }
+            if sub(zrxVault_slot, 21) { revertIncorrectStorageSlot() }
+            if sub(rewardVault_slot, 22) { revertIncorrectStorageSlot() }
         }
     }
 }
