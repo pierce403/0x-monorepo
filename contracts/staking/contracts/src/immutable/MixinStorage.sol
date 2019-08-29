@@ -26,12 +26,12 @@ import "../interfaces/IStructs.sol";
 
 
 // solhint-disable max-states-count
+// solhint-disable no-empty-blocks
 contract MixinStorage is
     MixinDeploymentConstants,
     MixinConstants,
     Ownable
 {
-
     constructor()
         public
         Ownable()

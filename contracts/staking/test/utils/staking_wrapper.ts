@@ -1,7 +1,6 @@
 import { ERC20ProxyContract } from '@0x/contracts-asset-proxy';
 import { artifacts as erc20Artifacts, DummyERC20TokenContract } from '@0x/contracts-erc20';
-import { constants as testUtilsConstants, LogDecoder, txDefaults } from '@0x/contracts-test-utils';
-import { SignatureType } from '@0x/types';
+import { LogDecoder, txDefaults } from '@0x/contracts-test-utils';
 import { BigNumber, logUtils } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import { Provider, TransactionReceiptWithDecodedLogs } from 'ethereum-types';
