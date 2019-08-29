@@ -171,7 +171,9 @@ contract MixinExchangeFees is
 
             // compute weighted stake
             uint256 totalStakeDelegatedToPool = getTotalStakeDelegatedToPool(poolId);
-            uint256 stakeHeldByPoolOperator = getActivatedAndUndelegatedStake(getStakingPoolOperator(poolId));
+            uint256 stakeHeldByPoolOperator = getActivatedAndUndelegatedStake(
+                getOperatorAddressInStakingPoolRewardVault(poolId)
+            );
             uint256 weightedStake = stakeHeldByPoolOperator.safeAdd(
                 totalStakeDelegatedToPool
                 .safeMul(REWARD_PAYOUT_DELEGATED_STAKE_PERCENT_VALUE)

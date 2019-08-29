@@ -27,16 +27,17 @@ pragma solidity ^0.5.9;
 /// corruption of related state in the staking contract.
 interface IStakingPoolRewardVault {
 
-    /// @dev Holds the balance for a staking pool.
+    /// @dev Holds the balances and other data for a staking pool.
     /// @param initialzed True iff the balance struct is initialized.
     /// @param operatorShare Percentage of the total balance owned by the operator.
     /// @param operatorBalance Balance in ETH of the operator.
     /// @param membersBalance Balance in ETH co-owned by the pool members.
-    struct Balance {
+    struct Pool {
         bool initialized;
         uint8 operatorShare;
         uint96 operatorBalance;
         uint96 membersBalance;
+        address payable operatorAddress;
     }
 
     /// @dev Emitted when reward is deposited.
@@ -73,6 +74,16 @@ interface IStakingPoolRewardVault {
     event StakingPoolRegistered(
         bytes32 poolId,
         uint8 operatorShare
+    );
+
+    /// @dev Emitted when a staking pool's operator share is decreased.
+    /// @param poolId Unique Id of pool that was registered.
+    /// @param oldOperatorShare Previous share of rewards owned by operator.
+    /// @param newOperatorShare Newly decreased share of rewards owned by operator.
+    event OperatorShareDecreased(
+        bytes32 poolId,
+        uint8 oldOperatorShare,
+        uint8 newOperatorShare
     );
 
     /// @dev Default constructor.
@@ -119,9 +130,28 @@ interface IStakingPoolRewardVault {
     /// Note that this is only callable by the staking contract, and when
     /// not in catastrophic failure mode.
     /// @param poolId Unique Id of pool.
+    /// @param operatorAddress Address of the pool operator.
     /// @param poolOperatorShare Percentage of rewards given to the pool operator.
-    function registerStakingPool(bytes32 poolId, uint8 poolOperatorShare)
+    function registerStakingPool(
+        bytes32 poolId,
+        address payable operatorAddress,
+        uint8 poolOperatorShare
+    )
         external;
+
+    /// @dev Decreases the operator share for the given pool (i.e. increases pool rewards for members)
+    /// @param poolId Unique Id of pool.
+    /// @param amountToDecrease The amount to decrease the operatorShare by.
+    function decreaseOperatorShare(bytes32 poolId, uint8 amountToDecrease)
+        external;
+
+    /// @dev Returns the address of the operator of a given pool
+    /// @param poolId Unique id of pool
+    /// @return operatorAddress Operator of the pool
+    function operatorOf(bytes32 poolId)
+        external
+        view
+        returns (address payable);
 
     /// @dev Returns the total balance of a pool.
     /// @param poolId Unique Id of pool.

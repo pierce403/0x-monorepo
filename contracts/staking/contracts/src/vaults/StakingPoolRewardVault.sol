@@ -47,8 +47,8 @@ contract StakingPoolRewardVault is
     using LibSafeMath for uint256;
     using LibSafeDowncast for uint256;
 
-    // mapping from Pool to Reward Balance in ETH
-    mapping (bytes32 => Balance) internal balanceByPoolId;
+    // mapping from poolId to Pool metadata
+    mapping (bytes32 => Pool) internal poolById;
 
     /// @dev Fallback function. This contract is payable, but only by the staking contract.
     function ()
@@ -72,9 +72,9 @@ contract StakingPoolRewardVault is
     {
         // update balance of pool
         uint256 amount = msg.value;
-        Balance memory balance = balanceByPoolId[poolId];
-        _incrementBalanceStruct(balance, amount);
-        balanceByPoolId[poolId] = balance;
+        Pool memory pool = poolById[poolId];
+        _incrementPoolBalances(pool, amount);
+        poolById[poolId] = pool;
 
         // notify
         emit RewardDeposited(poolId, amount);
@@ -92,9 +92,9 @@ contract StakingPoolRewardVault is
         onlyNotInCatastrophicFailure
     {
         // update balance of pool
-        Balance memory balance = balanceByPoolId[poolId];
-        _incrementBalanceStruct(balance, amount);
-        balanceByPoolId[poolId] = balance;
+        Pool memory pool = poolById[poolId];
+        _incrementPoolBalances(pool, amount);
+        poolById[poolId] = pool;
     }
 
     /// @dev Withdraw some amount in ETH of an operator's reward.
@@ -107,16 +107,16 @@ contract StakingPoolRewardVault is
         onlyStakingContract
     {
         // sanity check - sufficient balance?
-        uint256 operatorBalance = uint256(balanceByPoolId[poolId].operatorBalance);
+        uint256 operatorBalance = uint256(poolById[poolId].operatorBalance);
         if (amount > operatorBalance) {
             LibRichErrors.rrevert(LibStakingRichErrors.AmountExceedsBalanceOfPoolError(
                 amount,
-                balanceByPoolId[poolId].operatorBalance
+                poolById[poolId].operatorBalance
             ));
         }
 
         // update balance and transfer `amount` in ETH to staking contract
-        balanceByPoolId[poolId].operatorBalance = operatorBalance.safeSub(amount).downcastToUint96();
+        poolById[poolId].operatorBalance = operatorBalance.safeSub(amount).downcastToUint96();
         stakingContractAddress.transfer(amount);
 
         // notify
@@ -133,16 +133,16 @@ contract StakingPoolRewardVault is
         onlyStakingContract
     {
         // sanity check - sufficient balance?
-        uint256 membersBalance = uint256(balanceByPoolId[poolId].membersBalance);
+        uint256 membersBalance = uint256(poolById[poolId].membersBalance);
         if (amount > membersBalance) {
             LibRichErrors.rrevert(LibStakingRichErrors.AmountExceedsBalanceOfPoolError(
                 amount,
-                balanceByPoolId[poolId].membersBalance
+                poolById[poolId].membersBalance
             ));
         }
 
         // update balance and transfer `amount` in ETH to staking contract
-        balanceByPoolId[poolId].membersBalance = membersBalance.safeSub(amount).downcastToUint96();
+        poolById[poolId].membersBalance = membersBalance.safeSub(amount).downcastToUint96();
         stakingContractAddress.transfer(amount);
 
         // notify
@@ -153,35 +153,73 @@ contract StakingPoolRewardVault is
     /// Note that this is only callable by the staking contract, and when
     /// not in catastrophic failure mode.
     /// @param poolId Unique Id of pool.
-    /// @param poolOperatorShare Percentage of rewards given to the pool operator.
-    function registerStakingPool(bytes32 poolId, uint8 poolOperatorShare)
+    /// @param operatorShare Percentage of rewards given to the pool operator.
+    function registerStakingPool(
+        bytes32 poolId,
+        address payable operatorAddress,
+        uint8 operatorShare
+    )
         external
         onlyStakingContract
         onlyNotInCatastrophicFailure
     {
         // operator share must be a valid percentage
-        if (poolOperatorShare > PERCENTAGE_DENOMINATOR) {
+        if (operatorShare > PERCENTAGE_DENOMINATOR) {
             LibRichErrors.rrevert(LibStakingRichErrors.OperatorShareMustBeBetween0And100Error(
                 poolId,
-                poolOperatorShare
+                operatorShare
             ));
         }
 
         // pool must not exist
-        Balance memory balance = balanceByPoolId[poolId];
-        if (balance.initialized) {
+        Pool memory pool = poolById[poolId];
+        if (pool.initialized) {
             LibRichErrors.rrevert(LibStakingRichErrors.PoolAlreadyExistsError(
                 poolId
             ));
         }
 
-        // set initial balance
-        balance.initialized = true;
-        balance.operatorShare = poolOperatorShare;
-        balanceByPoolId[poolId] = balance;
+        // initialize pool
+        pool.initialized = true;
+        pool.operatorAddress = operatorAddress;
+        pool.operatorShare = operatorShare;
+        poolById[poolId] = pool;
 
         // notify
-        emit StakingPoolRegistered(poolId, poolOperatorShare);
+        emit StakingPoolRegistered(poolId, operatorShare);
+    }
+
+    /// @dev Decreases the operator share for the given pool (i.e. increases pool rewards for members)
+    /// @param poolId Unique Id of pool.
+    /// @param amountToDecrease The amount to decrease the operatorShare by.
+    function decreaseOperatorShare(bytes32 poolId, uint8 amountToDecrease)
+        external
+        onlyStakingContract
+        onlyNotInCatastrophicFailure
+    {
+        Pool memory pool = poolById[poolId];
+        uint8 oldOperatorShare = pool.operatorShare;
+
+        uint8 newOperatorShare;
+        if (amountToDecrease > oldOperatorShare) {
+            newOperatorShare = 0;
+        } else {
+            newOperatorShare = oldOperatorShare - amountToDecrease;
+        }
+
+        pool.operatorShare = newOperatorShare;
+        emit OperatorShareDecreased(poolId, oldOperatorShare, newOperatorShare);
+    }
+
+    /// @dev Returns the address of the operator of a given pool
+    /// @param poolId Unique id of pool
+    /// @return operatorAddress Operator of the pool
+    function operatorOf(bytes32 poolId)
+        external
+        view
+        returns (address payable)
+    {
+        return poolById[poolId].operatorAddress;
     }
 
     /// @dev Returns the total balance of a pool.
@@ -192,8 +230,8 @@ contract StakingPoolRewardVault is
         view
         returns (uint256)
     {
-        Balance memory balance = balanceByPoolId[poolId];
-        return balance.operatorBalance + balance.membersBalance;
+        Pool memory pool = poolById[poolId];
+        return pool.operatorBalance + pool.membersBalance;
     }
 
     /// @dev Returns the balance of a pool operator.
@@ -204,7 +242,7 @@ contract StakingPoolRewardVault is
         view
         returns (uint256)
     {
-        return balanceByPoolId[poolId].operatorBalance;
+        return poolById[poolId].operatorBalance;
     }
 
     /// @dev Returns the balance co-owned by members of a pool.
@@ -215,20 +253,20 @@ contract StakingPoolRewardVault is
         view
         returns (uint256)
     {
-        return balanceByPoolId[poolId].membersBalance;
+        return poolById[poolId].membersBalance;
     }
 
-    /// @dev Increments a balance struct, splitting the input amount between the
+    /// @dev Increments a balances in a Pool struct, splitting the input amount between the
     /// pool operator and members of the pool based on the pool operator's share.
-    /// @param balance Balance struct to increment.
+    /// @param pool Pool struct with the balances to increment.
     /// @param amount Amount to add to balance.
-    function _incrementBalanceStruct(Balance memory balance, uint256 amount)
+    function _incrementPoolBalances(Pool memory pool, uint256 amount)
         private
         pure
     {
         // compute portions. One of the two must round down: the operator always receives the leftover from rounding.
         uint256 operatorPortion = LibMath.getPartialAmountCeil(
-            uint256(balance.operatorShare),  // Operator share out of 100
+            uint256(pool.operatorShare),  // Operator share out of 100
             PERCENTAGE_DENOMINATOR,
             amount
         );
@@ -236,7 +274,7 @@ contract StakingPoolRewardVault is
         uint256 poolPortion = amount.safeSub(operatorPortion);
 
         // update balances
-        balance.operatorBalance = uint256(balance.operatorBalance).safeAdd(operatorPortion).downcastToUint96();
-        balance.membersBalance = uint256(balance.membersBalance).safeAdd(poolPortion).downcastToUint96();
+        pool.operatorBalance = uint256(pool.operatorBalance).safeAdd(operatorPortion).downcastToUint96();
+        pool.membersBalance = uint256(pool.membersBalance).safeAdd(poolPortion).downcastToUint96();
     }
 }

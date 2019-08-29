@@ -636,12 +636,14 @@ export class StakingWrapper {
     }
     public async rewardVaultRegisterPoolAsync(
         poolId: string,
-        poolOperatorShare: number,
+        operatorAddress: string,
+        operatorShare: number,
         stakingContractAddress: string,
     ): Promise<TransactionReceiptWithDecodedLogs> {
         const calldata = this.getStakingPoolRewardVaultContract().registerStakingPool.getABIEncodedTransactionData(
             poolId,
-            poolOperatorShare,
+            operatorAddress,
+            operatorShare,
         );
         const txReceipt = await this._executeTransactionAsync(calldata, stakingContractAddress);
         return txReceipt;

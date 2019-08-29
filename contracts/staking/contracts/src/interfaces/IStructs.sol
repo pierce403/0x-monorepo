@@ -21,14 +21,6 @@ pragma solidity ^0.5.9;
 
 interface IStructs {
 
-    /// @dev State for Staking Pools (see MixinStakingPool).
-    /// @param operatorAddress Address of pool operator.
-    /// @param operatorShare Portion of pool rewards owned by operator.
-    struct Pool {
-        address payable operatorAddress;
-        uint8 operatorShare;
-    }
-
     /// @dev State for a pool that actively traded during the current epoch.
     /// (see MixinExchangeFees).
     /// @param poolId Unique Id of staking pool.

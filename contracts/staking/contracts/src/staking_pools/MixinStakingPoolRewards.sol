@@ -82,7 +82,7 @@ contract MixinStakingPoolRewards is
         onlyStakingPoolOperator(poolId)
     {
         _withdrawFromOperatorInStakingPoolRewardVault(poolId, amount);
-        poolById[poolId].operatorAddress.transfer(amount);
+        getOperatorAddressInStakingPoolRewardVault(poolId).transfer(amount);
     }
 
     /// @dev Withdraws the total balance in ETH of the reward for the pool operator.
@@ -95,7 +95,7 @@ contract MixinStakingPoolRewards is
     {
         uint256 amount = getBalanceOfOperatorInStakingPoolRewardVault(poolId);
         _withdrawFromOperatorInStakingPoolRewardVault(poolId, amount);
-        poolById[poolId].operatorAddress.transfer(amount);
+        getOperatorAddressInStakingPoolRewardVault(poolId).transfer(amount);
 
         return amount;
     }

@@ -61,38 +61,6 @@ contract MixinStakingPool is
 {
     using LibSafeMath for uint256;
 
-    /// @dev Asserts that the sender is the operator of the input pool.
-    /// @param poolId Pool sender must be operator of.
-    modifier onlyStakingPoolOperator(bytes32 poolId) {
-        address poolOperator = getStakingPoolOperator(poolId);
-        if (msg.sender != poolOperator) {
-            LibRichErrors.rrevert(LibStakingRichErrors.OnlyCallableByPoolOperatorError(
-                msg.sender,
-                poolOperator
-            ));
-        }
-
-        _;
-    }
-
-    /// @dev Asserts that the sender is the operator of the input pool or the input maker.
-    /// @param poolId Pool sender must be operator of.
-    /// @param makerAddress Address of a maker in the pool.
-    modifier onlyStakingPoolOperatorOrMaker(bytes32 poolId, address makerAddress) {
-        address poolOperator = getStakingPoolOperator(poolId);
-        if (msg.sender != poolOperator && msg.sender != makerAddress) {
-            LibRichErrors.rrevert(
-                LibStakingRichErrors.OnlyCallableByPoolOperatorOrMakerError(
-                    msg.sender,
-                    poolOperator,
-                    makerAddress
-                )
-            );
-        }
-
-        _;
-    }
-
     /// @dev Create a new staking pool. The sender will be the operator of this pool.
     /// Note that an operator must be payable.
     /// @param operatorShare The percentage of any rewards owned by the operator.
@@ -109,15 +77,8 @@ contract MixinStakingPool is
         poolId = nextPoolId;
         nextPoolId = _computeNextStakingPoolId(poolId);
 
-        // store metadata about this pool
-        IStructs.Pool memory pool = IStructs.Pool({
-            operatorAddress: operatorAddress,
-            operatorShare: operatorShare
-        });
-        poolById[poolId] = pool;
-
         // register pool in reward vault
-        _registerStakingPoolInRewardVault(poolId, operatorShare);
+        _registerStakingPoolInRewardVault(poolId, operatorAddress, operatorShare);
 
         // notify
         emit StakingPoolCreated(poolId, operatorAddress, operatorShare);
@@ -278,6 +239,17 @@ contract MixinStakingPool is
         );
     }
 
+    /// @dev Decreases the operator share for the given pool (i.e. increases pool rewards for members)
+    /// Note that this is only callable by the pool operator.
+    /// @param poolId Unique Id of pool.
+    /// @param amountToDecrease The amount to decrease the operatorShare by.
+    function decreaseStakingPoolOperatorShare(bytes32 poolId, uint8 amountToDecrease)
+        external
+        onlyStakingPoolOperator(poolId)
+    {
+        _decreaseOperatorShareInStakingPoolRewardVault(poolId, amountToDecrease);
+    }
+
     /// @dev Returns the pool id of the input maker.
     /// @param makerAddress Address of maker
     /// @return Pool id, nil if maker is not yet assigned to a pool.
@@ -334,30 +306,6 @@ contract MixinStakingPool is
         returns (bytes32)
     {
         return nextPoolId;
-    }
-
-    /// @dev Returns the pool operator
-    /// @param poolId Unique id of pool
-    /// @return operatorAddress Operator of the pool
-    function getStakingPoolOperator(bytes32 poolId)
-        public
-        view
-        returns (address operatorAddress)
-    {
-        operatorAddress = poolById[poolId].operatorAddress;
-        return operatorAddress;
-    }
-
-    /// @dev Convenience function for loading information on a pool.
-    /// @param poolId Unique id of pool.
-    /// @return pool Pool info.
-    function _getStakingPool(bytes32 poolId)
-        internal
-        view
-        returns (IStructs.Pool memory pool)
-    {
-        pool = poolById[poolId];
-        return pool;
     }
 
     /// @dev Computes the unique id that comes after the input pool id.

@@ -18,6 +18,8 @@
 
 pragma solidity ^0.5.9;
 
+import "@0x/contracts-utils/contracts/src/LibRichErrors.sol";
+import "../libs/LibStakingRichErrors.sol";
 import "../interfaces/IStakingEvents.sol";
 import "../interfaces/IStakingPoolRewardVault.sol";
 import "../immutable/MixinStorage.sol";
@@ -32,6 +34,38 @@ contract MixinStakingPoolRewardVault is
     MixinConstants,
     MixinStorage
 {
+
+    /// @dev Asserts that the sender is the operator of the input pool.
+    /// @param poolId Pool sender must be operator of.
+    modifier onlyStakingPoolOperator(bytes32 poolId) {
+        address poolOperator = getOperatorAddressInStakingPoolRewardVault(poolId);
+        if (msg.sender != poolOperator) {
+            LibRichErrors.rrevert(LibStakingRichErrors.OnlyCallableByPoolOperatorError(
+                msg.sender,
+                poolOperator
+            ));
+        }
+
+        _;
+    }
+
+    /// @dev Asserts that the sender is the operator of the input pool or the input maker.
+    /// @param poolId Pool sender must be operator of.
+    /// @param makerAddress Address of a maker in the pool.
+    modifier onlyStakingPoolOperatorOrMaker(bytes32 poolId, address makerAddress) {
+        address poolOperator = getOperatorAddressInStakingPoolRewardVault(poolId);
+        if (msg.sender != poolOperator && msg.sender != makerAddress) {
+            LibRichErrors.rrevert(
+                LibStakingRichErrors.OnlyCallableByPoolOperatorOrMakerError(
+                    msg.sender,
+                    poolOperator,
+                    makerAddress
+                )
+            );
+        }
+
+        _;
+    }
 
     /// @dev Sets the address of the reward vault.
     /// This can only be called by the owner of this contract.
@@ -51,6 +85,17 @@ contract MixinStakingPoolRewardVault is
         returns (address)
     {
         return address(rewardVault);
+    }
+
+    /// @dev Returns the address of the operator of a staking pool, as recorded in the vault.
+    /// @param poolId Unique id of pool.
+    /// @return Operator address.
+    function getOperatorAddressInStakingPoolRewardVault(bytes32 poolId)
+        public
+        view
+        returns (address payable)
+    {
+        return rewardVault.operatorOf(poolId);
     }
 
     /// @dev Returns the total balance in ETH of a staking pool, as recorded in the vault.
@@ -89,12 +134,29 @@ contract MixinStakingPoolRewardVault is
     /// @dev Registers a staking pool in the reward vault.
     /// @param poolId Unique id of pool.
     /// @param operatorShare The percentage of the rewards owned by the operator.
-    function _registerStakingPoolInRewardVault(bytes32 poolId, uint8 operatorShare)
+    function _registerStakingPoolInRewardVault(
+        bytes32 poolId,
+        address payable operatorAddress,
+        uint8 operatorShare
+    )
         internal
     {
         rewardVault.registerStakingPool(
             poolId,
+            operatorAddress,
             operatorShare
+        );
+    }
+
+    /// @dev Decreases the operator share for the given pool (i.e. increases pool rewards for members)
+    /// @param poolId Unique Id of pool.
+    /// @param amountToDecrease The amount to decrease the operatorShare by.
+    function _decreaseOperatorShareInStakingPoolRewardVault(bytes32 poolId, uint8 amountToDecrease)
+        internal
+    {
+        rewardVault.decreaseOperatorShare(
+            poolId,
+            amountToDecrease
         );
     }
 

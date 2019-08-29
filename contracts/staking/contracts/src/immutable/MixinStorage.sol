@@ -64,9 +64,6 @@ contract MixinStorage is
     // tracking Pool Id
     bytes32 internal nextPoolId = INITIAL_POOL_ID;
 
-    // mapping from Pool Id to Pool
-    mapping (bytes32 => IStructs.Pool) internal poolById;
-
     // mapping from Maker Address to a struct representing the pool the maker has joined and
     // whether the operator of that pool has subsequently added the maker.
     mapping (address => IStructs.MakerPoolJoinStatus) internal poolJoinedByMakerAddress;
@@ -92,7 +89,7 @@ contract MixinStorage is
     // pools that were active in the current epoch
     bytes32[] internal activePoolsThisEpoch;
 
-    // mapping from POol Id to Shadow Rewards
+    // mapping from Pool Id to Shadow Rewards
     mapping (bytes32 => uint256) internal shadowRewardsByPoolId;
 
     // shadow balances by
