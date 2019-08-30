@@ -17,7 +17,6 @@ import {
 import Account from 'ethereumjs-account';
 import * as util from 'ethereumjs-util';
 import * as ethereumJsVm from 'ethereumjs-vm';
-import PStateManager from 'ethereumjs-vm/dist/state/promisified';
 import * as ethers from 'ethers';
 import * as _ from 'lodash';
 
@@ -32,6 +31,7 @@ export interface AbiEncoderByFunctionSignature {
 }
 
 const VM = ethereumJsVm.default;
+const PStateManager = ethereumJsVm.PStateManager;
 const ARBITRARY_PRIVATE_KEY = 'e331b6d69882b4cb4ea581d88e0b604039a3de5967688d3dcffdd2270c0fd109';
 
 // tslint:disable: max-classes-per-file
