@@ -50,21 +50,9 @@ library LibStakingRichErrors {
     bytes4 internal constant ONLY_CALLABLE_BY_POOL_OPERATOR_OR_MAKER_ERROR_SELECTOR =
         0x7d9e1c10;
 
-    // bytes4(keccak256("MakerAddressAlreadyRegisteredError(address)"))
-    bytes4 internal constant MAKER_ADDRESS_ALREADY_REGISTERED_ERROR_SELECTOR =
-        0x5a3971da;
-
-    // bytes4(keccak256("MakerAddressNotRegisteredError(address,bytes32,bytes32)"))
-    bytes4 internal constant MAKER_ADDRESS_NOT_REGISTERED_ERROR_SELECTOR =
-        0x12ab07e8;
-
-    // bytes4(keccak256("MakerNotPendingJoinError(address,bytes32,bytes32)"))
-    bytes4 internal constant MAKER_NOT_PENDING_JOIN_ERROR_SELECTOR =
-        0x11684a2c;
-
-    // bytes4(keccak256("PoolIsFullError(bytes32)"))
-    bytes4 internal constant POOL_IS_FULL_ERROR_SELECTOR =
-        0x5dd56ea0;
+    // bytes4(keccak256("MakerPoolAssignmentError(uint8,address,bytes32)"))
+    bytes4 internal constant MAKER_POOL_ASSIGNMENT_ERROR_SELECTOR =
+        0x69945e3f;
 
     // bytes4(keccak256("WithdrawAmountExceedsMemberBalanceError(uint256,uint256)"))
     bytes4 internal constant WITHDRAW_AMOUNT_EXCEEDS_MEMBER_BALANCE_ERROR_SELECTOR =
@@ -97,6 +85,13 @@ library LibStakingRichErrors {
     // bytes4(keccak256("PoolAlreadyExistsError(bytes32)"))
     bytes4 internal constant POOL_ALREADY_EXISTS_ERROR_SELECTOR =
         0x2a5e4dcf;
+
+    enum MakerPoolAssignmentErrorCodes {
+        MAKER_ADDRESS_ALREADY_REGISTERED,
+        MAKER_ADDRESS_NOT_REGISTERED,
+        MAKER_ADDRESS_NOT_PENDING_ADD,
+        POOL_IS_FULL
+    }
 
     // solhint-disable func-name-mixedcase
     function MiscalculatedRewardsError(
@@ -200,22 +195,9 @@ library LibStakingRichErrors {
         );
     }
 
-    function MakerAddressAlreadyRegisteredError(
-        address makerAddress
-    )
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeWithSelector(
-            MAKER_ADDRESS_ALREADY_REGISTERED_ERROR_SELECTOR,
-            makerAddress
-        );
-    }
-
-    function MakerAddressNotRegisteredError(
+    function MakerPoolAssignmentError(
+        MakerPoolAssignmentErrorCodes errorCode,
         address makerAddress,
-        bytes32 makerPoolId,
         bytes32 poolId
     )
         internal
@@ -223,39 +205,9 @@ library LibStakingRichErrors {
         returns (bytes memory)
     {
         return abi.encodeWithSelector(
-            MAKER_ADDRESS_NOT_REGISTERED_ERROR_SELECTOR,
+            MAKER_POOL_ASSIGNMENT_ERROR_SELECTOR,
+            errorCode,
             makerAddress,
-            makerPoolId,
-            poolId
-        );
-    }
-
-    function MakerNotPendingJoinError(
-        address makerAddress,
-        bytes32 pendingJoinPoolId,
-        bytes32 poolId
-    )
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeWithSelector(
-            MAKER_NOT_PENDING_JOIN_ERROR_SELECTOR,
-            makerAddress,
-            pendingJoinPoolId,
-            poolId
-        );
-    }
-
-    function PoolIsFullError(
-        bytes32 poolId
-    )
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeWithSelector(
-            POOL_IS_FULL_ERROR_SELECTOR,
             poolId
         );
     }

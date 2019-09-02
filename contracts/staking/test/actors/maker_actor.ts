@@ -43,9 +43,5 @@ export class MakerActor extends BaseActor {
         // check the pool id of the maker
         const poolIdOfMakerAfterRemoving = await this._stakingWrapper.getStakingPoolIdOfMakerAsync(this._owner);
         expect(poolIdOfMakerAfterRemoving, 'pool id of maker').to.be.equal(stakingConstants.NIL_POOL_ID);
-
-        // check the list of makers for the pool
-        const makerAddressesForPoolAfterRemoving = await this._stakingWrapper.getMakersForStakingPoolAsync(poolId);
-        expect(makerAddressesForPoolAfterRemoving, 'maker addresses for pool').to.not.include(this._owner);
     }
 }

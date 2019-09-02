@@ -373,11 +373,11 @@ export class StakingWrapper {
         const poolId = await this._callAsync(calldata);
         return poolId;
     }
-    public async getMakersForStakingPoolAsync(poolId: string): Promise<string[]> {
-        const calldata = this.getStakingContract().getMakersForStakingPool.getABIEncodedTransactionData(poolId);
-        const returndata = await this._callAsync(calldata);
-        const makerAddresses = this.getStakingContract().getMakersForStakingPool.getABIDecodedReturnData(returndata);
-        return makerAddresses;
+    public async getNumberOfMakersInStakingPoolAsync(poolId: string): Promise<BigNumber> {
+        const calldata = this.getStakingContract().getNumberOfMakersInStakingPool.getABIEncodedTransactionData(poolId);
+        const returnData = await this._callAsync(calldata);
+        const value = this.getStakingContract().getNumberOfMakersInStakingPool.getABIDecodedReturnData(returnData);
+        return value;
     }
     ///// EPOCHS /////
     public async goToNextEpochAsync(): Promise<TransactionReceiptWithDecodedLogs> {

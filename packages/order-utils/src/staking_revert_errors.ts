@@ -2,6 +2,13 @@ import { BigNumber, RevertError } from '@0x/utils';
 
 // tslint:disable:max-classes-per-file
 
+export enum MakerPoolAssignmentErrorCodes {
+    MakerAddressAlreadyRegistered,
+    MakerAddressNotRegistered,
+    MakerAddressNotPendingAdd,
+    PoolIsFull,
+}
+
 export class MiscalculatedRewardsError extends RevertError {
     constructor(totalRewardsPaid?: BigNumber | number | string, initialContractBalance?: BigNumber | number | string) {
         super(
@@ -65,37 +72,17 @@ export class OnlyCallableByPoolOperatorOrMakerError extends RevertError {
     }
 }
 
-export class MakerAddressAlreadyRegisteredError extends RevertError {
-    constructor(makerAddress?: string) {
-        super('MakerAddressAlreadyRegisteredError', 'MakerAddressAlreadyRegisteredError(address makerAddress)', {
-            makerAddress,
-        });
-    }
-}
-
-export class MakerAddressNotRegisteredError extends RevertError {
-    constructor(makerAddress?: string, makerPoolId?: string, poolId?: string) {
+export class MakerPoolAssignmentError extends RevertError {
+    constructor(error?: MakerPoolAssignmentErrorCodes, makerAddress?: string, poolId?: string) {
         super(
-            'MakerAddressNotRegisteredError',
-            'MakerAddressNotRegisteredError(address makerAddress, bytes32 makerPoolId, bytes32 poolId)',
-            { makerAddress, makerPoolId, poolId },
+            'MakerPoolAssignmentError',
+            'MakerPoolAssignmentError(uint8 error, address makerAddress, bytes32 poolId)',
+            {
+                error,
+                makerAddress,
+                poolId,
+            },
         );
-    }
-}
-
-export class MakerNotPendingJoinError extends RevertError {
-    constructor(makerAddress?: string, pendingJoinPoolId?: string, poolId?: string) {
-        super(
-            'MakerNotPendingJoinError',
-            'MakerNotPendingJoinError(address makerAddress, bytes32 pendingJoinPoolId, bytes32 poolId)',
-            { makerAddress, pendingJoinPoolId, poolId },
-        );
-    }
-}
-
-export class PoolIsFullError extends RevertError {
-    constructor(poolId?: string) {
-        super('PoolIsFullError', 'PoolIsFullError(bytes32 poolId)', { poolId });
     }
 }
 
@@ -113,7 +100,7 @@ export class BlockTimestampTooLowError extends RevertError {
     constructor(epochEndTime?: BigNumber | number | string, currentBlockTimestamp?: BigNumber | number | string) {
         super(
             'BlockTimestampTooLowError',
-            'BlockTimestampTooLowError(uint64 epochEndTime, uint64 currentBlockTimestamp)',
+            'BlockTimestampTooLowError(uint256 epochEndTime, uint256 currentBlockTimestamp)',
             { epochEndTime, currentBlockTimestamp },
         );
     }
@@ -173,10 +160,7 @@ const types = [
     InsufficientBalanceError,
     OnlyCallableByPoolOperatorError,
     OnlyCallableByPoolOperatorOrMakerError,
-    MakerAddressAlreadyRegisteredError,
-    MakerAddressNotRegisteredError,
-    MakerNotPendingJoinError,
-    PoolIsFullError,
+    MakerPoolAssignmentError,
     WithdrawAmountExceedsMemberBalanceError,
     BlockTimestampTooLowError,
     OnlyCallableByStakingContractError,

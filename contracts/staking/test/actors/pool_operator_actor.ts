@@ -32,9 +32,9 @@ export class PoolOperatorActor extends BaseActor {
             // check the pool id of the operator
             const poolIdOfMaker = await this._stakingWrapper.getStakingPoolIdOfMakerAsync(this._owner);
             expect(poolIdOfMaker, 'pool id of maker').to.be.equal(poolId);
-            // check the list of makers for the pool
-            const makerAddressesForPool = await this._stakingWrapper.getMakersForStakingPoolAsync(poolId);
-            expect(makerAddressesForPool, 'maker addresses for pool').to.deep.equal([this._owner]);
+            // check the number of makers in the pool
+            const numMakersAfterRemoving = await this._stakingWrapper.getNumberOfMakersInStakingPoolAsync(poolId);
+            expect(numMakersAfterRemoving, 'number of makers in pool').to.be.bignumber.equal(1);
         }
         return poolId;
     }
@@ -53,9 +53,6 @@ export class PoolOperatorActor extends BaseActor {
         // check the pool id of the maker
         const poolIdOfMaker = await this._stakingWrapper.getStakingPoolIdOfMakerAsync(makerAddress);
         expect(poolIdOfMaker, 'pool id of maker').to.be.equal(poolId);
-        // check the list of makers for the pool
-        const makerAddressesForPool = await this._stakingWrapper.getMakersForStakingPoolAsync(poolId);
-        expect(makerAddressesForPool, 'maker addresses for pool').to.include(makerAddress);
     }
     public async removeMakerFromStakingPoolAsync(
         poolId: string,
@@ -76,8 +73,5 @@ export class PoolOperatorActor extends BaseActor {
         // check the pool id of the maker
         const poolIdOfMakerAfterRemoving = await this._stakingWrapper.getStakingPoolIdOfMakerAsync(makerAddress);
         expect(poolIdOfMakerAfterRemoving, 'pool id of maker').to.be.equal(stakingConstants.NIL_POOL_ID);
-        // check the list of makers for the pool
-        const makerAddressesForPoolAfterRemoving = await this._stakingWrapper.getMakersForStakingPoolAsync(poolId);
-        expect(makerAddressesForPoolAfterRemoving, 'maker addresses for pool').to.not.include(makerAddress);
     }
 }

@@ -51,7 +51,7 @@ contract TestStorageLayout is
             if sub(nextPoolId_slot, 9) { revertIncorrectStorageSlot() }
             if sub(poolById_slot, 10) { revertIncorrectStorageSlot() }
             if sub(poolJoinedByMakerAddress_slot, 11) { revertIncorrectStorageSlot() }
-            if sub(makerAddressesByPoolId_slot, 12) { revertIncorrectStorageSlot() }
+            if sub(numMakersByPoolId_slot, 12) { revertIncorrectStorageSlot() }
             if sub(currentEpoch_slot, 13) { revertIncorrectStorageSlot() }
             if sub(currentEpochStartTimeInSeconds_slot, 14) { revertIncorrectStorageSlot() }
             if sub(currentTimeLockPeriod_slot, 15) { revertIncorrectStorageSlot() }

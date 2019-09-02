@@ -119,14 +119,16 @@ contract MixinStakingPool is
         // register pool in reward vault
         _registerStakingPoolInRewardVault(poolId, operatorShare);
 
-        // notify
+        // Staking pool has been created
         emit StakingPoolCreated(poolId, operatorAddress, operatorShare);
 
         if (addOperatorAsMaker) {
             // Is the maker already in a pool?
             if (isMakerAssignedToStakingPool(operatorAddress)) {
-                LibRichErrors.rrevert(LibStakingRichErrors.MakerAddressAlreadyRegisteredError(
-                    operatorAddress
+                LibRichErrors.rrevert(LibStakingRichErrors.MakerPoolAssignmentError(
+                    LibStakingRichErrors.MakerPoolAssignmentErrorCodes.MAKER_ADDRESS_ALREADY_REGISTERED,
+                    operatorAddress,
+                    getStakingPoolIdOfMaker(operatorAddress)
                 ));
             }
 
@@ -135,9 +137,9 @@ contract MixinStakingPool is
                 confirmed: true
             });
             poolJoinedByMakerAddress[operatorAddress] = poolJoinStatus;
-            makerAddressesByPoolId[poolId].push(operatorAddress);
+            numMakersByPoolId[poolId] += 1;
 
-            // notify
+            // Operator has been added as a maker to tbe pool
             emit MakerAddedToStakingPool(
                 poolId,
                 operatorAddress
@@ -155,8 +157,10 @@ contract MixinStakingPool is
         // Is the maker already in a pool?
         address makerAddress = msg.sender;
         if (isMakerAssignedToStakingPool(makerAddress)) {
-            LibRichErrors.rrevert(LibStakingRichErrors.MakerAddressAlreadyRegisteredError(
-                makerAddress
+            LibRichErrors.rrevert(LibStakingRichErrors.MakerPoolAssignmentError(
+                LibStakingRichErrors.MakerPoolAssignmentErrorCodes.MAKER_ADDRESS_ALREADY_REGISTERED,
+                makerAddress,
+                getStakingPoolIdOfMaker(makerAddress)
             ));
         }
 
@@ -166,7 +170,7 @@ contract MixinStakingPool is
         });
         poolJoinedByMakerAddress[makerAddress] = poolJoinStatus;
 
-        // notify
+        // Maker has joined to the pool, awaiting operator confirmation
         emit PendingAddMakerToPool(
             poolId,
             makerAddress
@@ -186,24 +190,30 @@ contract MixinStakingPool is
     {
         // Is the maker already in a pool?
         if (isMakerAssignedToStakingPool(makerAddress)) {
-            LibRichErrors.rrevert(LibStakingRichErrors.MakerAddressAlreadyRegisteredError(
-                makerAddress
+            LibRichErrors.rrevert(LibStakingRichErrors.MakerPoolAssignmentError(
+                LibStakingRichErrors.MakerPoolAssignmentErrorCodes.MAKER_ADDRESS_ALREADY_REGISTERED,
+                makerAddress,
+                getStakingPoolIdOfMaker(makerAddress)
             ));
         }
 
         // Is the maker trying to join this pool?
         bytes32 makerPendingPoolId = poolJoinedByMakerAddress[makerAddress].poolId;
         if (makerPendingPoolId != poolId) {
-            LibRichErrors.rrevert(LibStakingRichErrors.MakerNotPendingJoinError(
+            LibRichErrors.rrevert(LibStakingRichErrors.MakerPoolAssignmentError(
+                LibStakingRichErrors.MakerPoolAssignmentErrorCodes.MAKER_ADDRESS_NOT_PENDING_ADD,
                 makerAddress,
-                makerPendingPoolId,
-                poolId
+                makerPendingPoolId
             ));
         }
 
         // Is the pool already full?
         if (getNumberOfMakersInStakingPool(poolId) == MAX_MAKERS_IN_POOL) {
-            LibRichErrors.rrevert(LibStakingRichErrors.PoolIsFullError(poolId));
+            LibRichErrors.rrevert(LibStakingRichErrors.MakerPoolAssignmentError(
+                LibStakingRichErrors.MakerPoolAssignmentErrorCodes.POOL_IS_FULL,
+                makerAddress,
+                poolId
+            ));
         }
 
         // Add maker to pool
@@ -212,9 +222,9 @@ contract MixinStakingPool is
             confirmed: true
         });
         poolJoinedByMakerAddress[makerAddress] = poolJoinStatus;
-        makerAddressesByPoolId[poolId].push(makerAddress);
+        numMakersByPoolId[poolId] += 1;
 
-        // notify
+        // Maker has been added to the pool
         emit MakerAddedToStakingPool(
             poolId,
             makerAddress
@@ -235,43 +245,22 @@ contract MixinStakingPool is
     {
         bytes32 makerPoolId = getStakingPoolIdOfMaker(makerAddress);
         if (makerPoolId != poolId) {
-            LibRichErrors.rrevert(LibStakingRichErrors.MakerAddressNotRegisteredError(
+            LibRichErrors.rrevert(LibStakingRichErrors.MakerPoolAssignmentError(
+                LibStakingRichErrors.MakerPoolAssignmentErrorCodes.MAKER_ADDRESS_NOT_REGISTERED,
                 makerAddress,
-                makerPoolId,
-                poolId
+                makerPoolId
             ));
         }
 
-        // load list of makers for the input pool.
-        address[] storage makerAddressesByPoolIdPtr = makerAddressesByPoolId[poolId];
-        uint256 makerAddressesByPoolIdLength = makerAddressesByPoolIdPtr.length;
-
-        // find index of maker to remove.
-        uint indexOfMakerAddress = 0;
-        for (; indexOfMakerAddress < makerAddressesByPoolIdLength; ++indexOfMakerAddress) {
-            if (makerAddressesByPoolIdPtr[indexOfMakerAddress] == makerAddress) {
-                break;
-            }
-        }
-
-        // remove the maker from the list of makers for this pool.
-        // (i) move maker at end of list to the slot occupied by the maker to remove, then
-        // (ii) zero out the slot at the end of the list and decrement the length.
-        uint256 indexOfLastMakerAddress = makerAddressesByPoolIdLength - 1;
-        if (indexOfMakerAddress != indexOfLastMakerAddress) {
-            makerAddressesByPoolIdPtr[indexOfMakerAddress] = makerAddressesByPoolIdPtr[indexOfLastMakerAddress];
-        }
-        makerAddressesByPoolIdPtr[indexOfLastMakerAddress] = NIL_ADDRESS;
-        makerAddressesByPoolIdPtr.length -= 1;
-
         // remove the pool and confirmation from the maker status
         IStructs.MakerPoolJoinStatus memory poolJoinStatus = IStructs.MakerPoolJoinStatus({
-            poolId: NIL_MAKER_ID,
+            poolId: NIL_POOL_ID,
             confirmed: false
         });
         poolJoinedByMakerAddress[makerAddress] = poolJoinStatus;
+        numMakersByPoolId[poolId] -= 1;
 
-        // notify
+        // Maker has been removed from the pool`
         emit MakerRemovedFromStakingPool(
             poolId,
             makerAddress
@@ -289,7 +278,7 @@ contract MixinStakingPool is
         if (isMakerAssignedToStakingPool(makerAddress)) {
             return poolJoinedByMakerAddress[makerAddress].poolId;
         } else {
-            return NIL_MAKER_ID;
+            return NIL_POOL_ID;
         }
     }
 
@@ -304,17 +293,6 @@ contract MixinStakingPool is
         return poolJoinedByMakerAddress[makerAddress].confirmed;
     }
 
-    /// @dev Returns the makers for a given pool.
-    /// @param poolId Unique id of pool.
-    /// @return _makerAddressesByPoolId Makers for pool.
-    function getMakersForStakingPool(bytes32 poolId)
-        public
-        view
-        returns (address[] memory _makerAddressesByPoolId)
-    {
-        return makerAddressesByPoolId[poolId];
-    }
-
     /// @dev Returns the current number of makers in a given pool.
     /// @param poolId Unique id of pool.
     /// @return Size of pool.
@@ -323,7 +301,7 @@ contract MixinStakingPool is
         view
         returns (uint256)
     {
-        return makerAddressesByPoolId[poolId].length;
+        return numMakersByPoolId[poolId];
     }
 
     /// @dev Returns the unique id that will be assigned to the next pool that is created.

@@ -98,39 +98,40 @@ blockchainTests('Staking Pool Management', env => {
             // maker removes themselves from pool
             await maker.removeMakerFromStakingPoolAsync(poolId, makerAddress);
         });
-        it('Should successfully add/remove multipler makers to the same pool', async () => {
+        it('Should successfully add/remove multiple makers to the same pool', async () => {
             // test parameters
             const operatorAddress = users[0];
             const operatorShare = 39;
             const poolOperator = new PoolOperatorActor(operatorAddress, stakingWrapper);
             const makerAddresses = users.slice(1, 4);
-            const makers = [
-                new MakerActor(makerAddresses[0], stakingWrapper),
-                new MakerActor(makerAddresses[1], stakingWrapper),
-                new MakerActor(makerAddresses[2], stakingWrapper),
-            ];
+            const makers = makerAddresses.map(makerAddress => new MakerActor(makerAddress, stakingWrapper));
+
             // create pool
-            const poolId = await poolOperator.createStakingPoolAsync(operatorShare, true);
+            const poolId = await poolOperator.createStakingPoolAsync(operatorShare, false);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
+
             // add makers to pool
-            await Promise.all([
-                makers[0].joinStakingPoolAsMakerAsync(poolId),
-                makers[1].joinStakingPoolAsMakerAsync(poolId),
-                makers[2].joinStakingPoolAsMakerAsync(poolId),
-            ]);
-            await Promise.all([
-                poolOperator.addMakerToStakingPoolAsync(poolId, makerAddresses[0]),
-                poolOperator.addMakerToStakingPoolAsync(poolId, makerAddresses[1]),
-                poolOperator.addMakerToStakingPoolAsync(poolId, makerAddresses[2]),
-            ]);
+            await Promise.all(makers.map(async maker => maker.joinStakingPoolAsMakerAsync(poolId)));
+            await Promise.all(
+                makerAddresses.map(async makerAddress => poolOperator.addMakerToStakingPoolAsync(poolId, makerAddress)),
+            );
+
+            // check the number of makers in the pool
+            let numMakers = await stakingWrapper.getNumberOfMakersInStakingPoolAsync(poolId);
+            expect(numMakers, 'number of makers in pool after adding').to.be.bignumber.equal(3);
+
             // remove maker from pool
-            await Promise.all([
-                poolOperator.removeMakerFromStakingPoolAsync(poolId, makerAddresses[0]),
-                poolOperator.removeMakerFromStakingPoolAsync(poolId, makerAddresses[1]),
-                poolOperator.removeMakerFromStakingPoolAsync(poolId, makerAddresses[2]),
-            ]);
+            await Promise.all(
+                makerAddresses.map(async makerAddress =>
+                    poolOperator.removeMakerFromStakingPoolAsync(poolId, makerAddress),
+                ),
+            );
+
+            // check the number of makers in the pool
+            numMakers = await stakingWrapper.getNumberOfMakersInStakingPoolAsync(poolId);
+            expect(numMakers, 'number of makers in pool after removing').to.be.bignumber.equal(0);
         });
-        it('Should fail if maker already assigned to pool tries to join', async () => {
+        it('Should fail if maker already assigned to another pool tries to join', async () => {
             // test parameters
             const operatorShare = 39;
             const assignedPoolOperator = new PoolOperatorActor(users[0], stakingWrapper);
@@ -150,7 +151,11 @@ blockchainTests('Staking Pool Management', env => {
             // first pool operator adds maker
             await assignedPoolOperator.addMakerToStakingPoolAsync(assignedPoolId, makerAddress);
 
-            const revertError = new StakingRevertErrors.MakerAddressAlreadyRegisteredError(makerAddress);
+            const revertError = new StakingRevertErrors.MakerPoolAssignmentError(
+                StakingRevertErrors.MakerPoolAssignmentErrorCodes.MakerAddressAlreadyRegistered,
+                makerAddress,
+                assignedPoolId,
+            );
             // second pool operator now tries to add maker
             await otherPoolOperator.addMakerToStakingPoolAsync(otherPoolId, makerAddress, revertError);
         });
@@ -166,10 +171,10 @@ blockchainTests('Staking Pool Management', env => {
             const poolId = await poolOperator.createStakingPoolAsync(operatorShare, true);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
 
-            const revertError = new StakingRevertErrors.MakerNotPendingJoinError(
+            const revertError = new StakingRevertErrors.MakerPoolAssignmentError(
+                StakingRevertErrors.MakerPoolAssignmentErrorCodes.MakerAddressNotPendingAdd,
                 makerAddress,
                 stakingConstants.NIL_POOL_ID,
-                poolId,
             );
             // operator adds maker to pool
             await poolOperator.addMakerToStakingPoolAsync(poolId, makerAddress, revertError);
@@ -192,10 +197,10 @@ blockchainTests('Staking Pool Management', env => {
             // maker joins first pool
             await maker.joinStakingPoolAsMakerAsync(joinedPoolId);
 
-            const revertError = new StakingRevertErrors.MakerNotPendingJoinError(
+            const revertError = new StakingRevertErrors.MakerPoolAssignmentError(
+                StakingRevertErrors.MakerPoolAssignmentErrorCodes.MakerAddressNotPendingAdd,
                 makerAddress,
                 joinedPoolId,
-                otherPoolId,
             );
             // second pool operator now tries to add maker
             await otherPoolOperator.addMakerToStakingPoolAsync(otherPoolId, makerAddress, revertError);
@@ -213,7 +218,11 @@ blockchainTests('Staking Pool Management', env => {
             // add maker to pool
             await maker.joinStakingPoolAsMakerAsync(poolId);
             await poolOperator.addMakerToStakingPoolAsync(poolId, makerAddress);
-            const revertError = new StakingRevertErrors.MakerAddressAlreadyRegisteredError(makerAddress);
+            const revertError = new StakingRevertErrors.MakerPoolAssignmentError(
+                StakingRevertErrors.MakerPoolAssignmentErrorCodes.MakerAddressAlreadyRegistered,
+                makerAddress,
+                poolId,
+            );
             // add same maker to pool again
             await poolOperator.addMakerToStakingPoolAsync(poolId, makerAddress, revertError);
         });
@@ -226,10 +235,10 @@ blockchainTests('Staking Pool Management', env => {
             // create pool
             const poolId = await poolOperator.createStakingPoolAsync(operatorShare, true);
             expect(poolId).to.be.equal(stakingConstants.INITIAL_POOL_ID);
-            const revertError = new StakingRevertErrors.MakerAddressNotRegisteredError(
+            const revertError = new StakingRevertErrors.MakerPoolAssignmentError(
+                StakingRevertErrors.MakerPoolAssignmentErrorCodes.MakerAddressNotRegistered,
                 makerAddress,
                 stakingConstants.NIL_POOL_ID,
-                poolId,
             );
             // remove non-existent maker from pool
             await poolOperator.removeMakerFromStakingPoolAsync(poolId, makerAddress, revertError);
@@ -302,9 +311,18 @@ blockchainTests('Staking Pool Management', env => {
                 ),
             );
 
-            // Try to add last one more maker to the pool
-            const revertError = new StakingRevertErrors.PoolIsFullError(poolId);
-            await poolOperator.addMakerToStakingPoolAsync(poolId, _.last(makerAddresses) as string, revertError);
+            // check the number of makers in the pool
+            const numMakers = await stakingWrapper.getNumberOfMakersInStakingPoolAsync(poolId);
+            expect(numMakers, 'number of makers in pool').to.be.bignumber.equal(stakingConstants.MAX_MAKERS_IN_POOL);
+
+            const lastMakerAddress = _.last(makerAddresses) as string;
+            // Try to add last maker to the pool
+            const revertError = new StakingRevertErrors.MakerPoolAssignmentError(
+                StakingRevertErrors.MakerPoolAssignmentErrorCodes.PoolIsFull,
+                lastMakerAddress,
+                poolId,
+            );
+            await poolOperator.addMakerToStakingPoolAsync(poolId, lastMakerAddress, revertError);
         });
     });
 });
